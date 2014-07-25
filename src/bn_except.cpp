@@ -1,6 +1,6 @@
 /* 
  * File:   bn_except.cpp
- * Author: A435534a
+ * Author: Miles Lacey
  * 
  * Created on June 24, 2014, 12:43 PM
  */

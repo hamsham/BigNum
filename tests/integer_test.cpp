@@ -1,6 +1,6 @@
 /* 
  * File:   integer_test.cpp
- * Author: A435534a
+ * Author: Miles Lacey
  *
  * Created on Jul 18, 2014, 7:22:08 PM
  */

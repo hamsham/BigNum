@@ -1,6 +1,6 @@
 /* 
  * File:   bignum_type.h
- * Author: A435534a
+ * Author: Miles Lacey
  *
  * Created on June 18, 2014, 1:30 PM
  */

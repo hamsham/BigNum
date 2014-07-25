@@ -1,6 +1,6 @@
 /* 
  * File:   bn_type.cpp
- * Author: A435534a
+ * Author: Miles Lacey
  * 
  * Created on July 24, 2014, 2:54 PM
  */

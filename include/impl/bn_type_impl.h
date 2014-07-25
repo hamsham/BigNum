@@ -1,6 +1,6 @@
 /* 
  * File:   bn_type_impl.h
- * Author: A435534a
+ * Author: Miles Lacey
  *
  * Created on July 18, 2014, 12:45 PM
  */

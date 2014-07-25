@@ -1,6 +1,6 @@
 /* 
  * File:   compress_test.cpp
- * Author: A435534a
+ * Author: Miles Lacey
  *
  * Created on Jun 30, 2014, 10:44:41 AM
  */
