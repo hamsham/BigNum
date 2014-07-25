@@ -54,8 +54,12 @@ bn_type<base_single, base_double>::bn_type(
     std::initializer_list<base_single> numList
 ) :
     descriptor{desc},
-    numData{numList}
-{}
+    numData{}
+{
+        for (base_single digit : numList) {
+            numData.push_front(digit);
+        }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Copy Constructor
