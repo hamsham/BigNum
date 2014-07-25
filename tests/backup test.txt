@@ -1,0 +1,213 @@
+/* 
+ * File:   compress_test.cpp
+ * Author: A435534a
+ *
+ * Created on Jun 30, 2014, 10:44:41 AM
+ */
+
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <utility>
+
+#include "bn_type.h"
+
+struct fileInfo {
+    uint64_t numCompressions = {0};
+    bignum fileData = {BN_POS, {0}};
+};
+
+enum class test_err_t : int {
+    ERR_INVALID_FILE,
+    ERR_OPENING_FILE,
+    ERR_CLOSING_FILE,
+    
+    NO_FILE_ERR
+};
+
+std::ifstream::pos_type getNumBytes(std::ifstream& fin) {
+    if (fin.fail() || fin.bad()) {
+        std::cout << "File read error" << std::endl;
+        return 0;
+    }
+    
+    std::ifstream::pos_type currentPos = fin.tellg();
+    fin.seekg(0, std::ifstream::end);
+    std::ifstream::pos_type totalSize = fin.tellg();
+    fin.seekg(currentPos, std::ifstream::beg);
+    fin.clear();
+    return totalSize;
+}
+
+const bignum getSubtractor(std::ifstream& fin) {
+    bignum ret = {BN_POS, {bignum::SINGLE_BASE_MAX}};
+    unsigned long long fileSize = getNumBytes(fin);
+    
+    if (fileSize == 0) {
+        ret.pop_back();
+        return ret;
+    }
+    
+    ret.resize(fileSize/2 - 1, bignum::SINGLE_BASE_MAX);
+    
+    return ret;
+}
+
+test_err_t compress(const std::string& filename, bignum& compressor) {
+    std::ifstream fin{filename, std::ifstream::binary | std::ifstream::in};
+    bignum outNum;
+    
+    if (!fin.good()) {
+        return test_err_t::ERR_OPENING_FILE;
+    }
+    else {
+        outNum = std::move(bignum{BN_POS, {0}});
+    }
+    
+    // Read the file into a bignum
+    while (fin.good()) {
+        uint32_t c1 = (uint32_t)(fin.good() ? fin.get() : 0);
+        c1 <<= 0;
+        uint32_t c2 = (uint32_t)(fin.good() ? fin.get() : 0);
+        c2 <<= 8;
+        uint32_t c3 = (uint32_t)(fin.good() ? fin.get() : 0);
+        c3 <<= 16;
+        uint32_t c4 = (uint32_t)(fin.good() ? fin.get() : 0);
+        c4 <<= 24;
+        
+        uint32_t digit = c1 | c2 | c3 | c4;
+        outNum.push_back(digit);
+    }
+    fin.clear();
+    compressor = std::move(getSubtractor(fin));
+    fin.close();
+    
+    // return if nothing was actually read.
+    bignum::double_t numCompressions = 0;
+    if (compressor.size() == 0) {
+        return test_err_t::NO_FILE_ERR;
+    }
+    
+    // compress (subtract) the file using a standard number
+    std::cout << "Compressing " << filename << " with a compression factor of " << compressor.size() << std::endl;
+    while (outNum.getDescriptor() == BN_POS) {
+        outNum -= compressor;
+        ++numCompressions;
+    }
+    std::cout << std::endl;
+    
+    // output the compressed bignum to a temporary file
+    const std::string outfile = filename + ".kpc";
+    std::ofstream fout{outfile.c_str(), std::ofstream::binary | std::ofstream::out};
+    
+    // output some description of what was compressed
+    fout.write(reinterpret_cast<const char*>(&numCompressions), sizeof(bignum::double_t));
+    const int descriptor = outNum.getDescriptor();
+    fout.write(reinterpret_cast<const char*>(&descriptor), sizeof(int));
+    
+    for (bignum::single_t digit : outNum.getData()) {
+        fout.write(reinterpret_cast<const char*>(&digit), sizeof(bignum::single_t));
+    }
+    fout.close();
+    
+    return test_err_t::NO_FILE_ERR;
+}
+
+test_err_t decompress(const std::string& filename, const bignum& compressor) {
+    const std::string infile = filename + ".kpc";
+    std::ifstream fin{infile, std::ifstream::binary | std::ifstream::in};
+    bignum inNum;
+    
+    if (!fin.good()) {
+        return test_err_t::ERR_OPENING_FILE;
+    }
+    else {
+        inNum = std::move(bignum{BN_POS, {0}});
+    }
+    
+    // read the number's attributes
+    uint64_t numCompressions = 0;
+    int descriptor = 0;
+    fin.read(reinterpret_cast<char*>(&numCompressions), sizeof(bignum::double_t));
+    fin.read(reinterpret_cast<char*>(&descriptor), sizeof(int));
+    inNum.setDescriptor((bn_desc_t)descriptor);
+    
+    // read in the compressed file
+    while (fin.good()) {
+        bignum::single_t digit;
+        fin.read(reinterpret_cast<char*>(&digit), sizeof(bignum::single_t));
+        inNum.push_back(digit);
+    }
+    fin.close();
+    
+    // decompress
+    std::cout << "Decompressing " << filename << std::endl;
+    while (numCompressions > 0) {
+        inNum += compressor;
+        --numCompressions;
+    }
+    std::cout << std::endl;
+    
+    // output the compressed file
+    const std::string outfile = filename + ".bak";
+    std::ofstream fout{outfile.c_str(), std::ofstream::binary | std::ofstream::out};
+    
+    for (typename bignum::container_type::size_type i = 0; i < inNum.size(); ++i) {
+        uint32_t digit = inNum[i];
+        fout
+            << (char)(digit >> 0)
+            << (char)(digit >> 8)
+            << (char)(digit >> 16)
+            << (char)(digit >> 24);
+    }
+    fout.close();
+    
+    return test_err_t::NO_FILE_ERR;
+}
+
+std::vector<std::string> parseArgs(int argc, char** argv) {
+    std::vector<std::string> argList;
+    
+    for (int i = 1; i < argc; ++i) {
+        std::string inArg = argv[i];
+        
+        argList.emplace_back(inArg);
+    }
+    
+    return argList;
+}
+
+int main(int argc, char** argv) {
+    const std::vector<std::string> argList = std::move(parseArgs(argc, argv));
+    
+    if (argList.size() == 0) {
+        std::cout
+            << "Invalid arguments provided.\n"
+            << "The correct syntax is \"kpcompress \'file.ext\'."
+            << std::endl;
+        return -1;
+    }
+    
+    /*
+     * Uncomment when ready to save files
+    for (const std::string& arg : argList) {
+        std::size_t extIter = arg.find_last_of('.');
+        if (extIter == arg.size()-4 && arg.substr(extIter) == ".kpc") {
+            decompress(arg.c_str());
+        }
+        else {
+            compress(arg.c_str());
+        }
+    }
+    */
+    for (const std::string& arg : argList) {
+        bignum compressor = {};
+        
+        compress(arg, compressor);
+        decompress(arg, compressor);
+    }
+    
+    return 0;
+}
+
