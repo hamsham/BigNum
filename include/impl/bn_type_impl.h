@@ -56,9 +56,16 @@ bn_type<base_single, base_double>::bn_type(
     descriptor{desc},
     numData{}
 {
-        for (base_single digit : numList) {
+    bool emptyDigit = true;
+    for (base_single digit : numList) {
+        if (digit != base_single{SINGLE_BASE_MIN}) {
+            emptyDigit = false;
+        }
+        
+        if (!emptyDigit) {
             numData.push_front(digit);
         }
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -388,6 +395,17 @@ bn_type<base_single, base_double>::operator - (const bn_type& num) const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Subtract.
+///////////////////////////////////////////////////////////////////////////////
+template <typename base_single, typename base_double>
+inline bn_type<base_single, base_double>
+bn_type<base_single, base_double>::operator * (const bn_type& num) const {
+    bn_type ret = *this;
+    ret *= num;
+    return ret;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // Addition with assignment
 ///////////////////////////////////////////////////////////////////////////////
 template <typename base_single, typename base_double>
@@ -622,6 +640,91 @@ void bn_type<base_single, base_double>::absValSub(
             break;
         }
     }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Subtraction with assignment
+///////////////////////////////////////////////////////////////////////////////
+template <typename base_single, typename base_double>
+bn_type<base_single, base_double>&
+bn_type<base_single, base_double>::operator *=(const bn_type& num) {
+    // Make sure no unneeded calculations are performed
+    if (!isComputable(descriptor)) {
+        numData.clear();
+        descriptor = num.descriptor;
+        return *this;
+    }
+    
+    bn_type ret;
+    
+    // subtract a negative from a positive
+    if (this->descriptor == BN_POS && num.descriptor == BN_NEG) {
+        ret.descriptor = BN_NEG;
+    }
+    else if (this->descriptor == BN_NEG && num.descriptor == BN_NEG) {
+        ret.descriptor = BN_POS;
+    }
+    else if (this->descriptor == BN_NEG && num.descriptor == BN_POS) {
+        ret.descriptor = BN_NEG;
+    }
+    else {
+        ret.descriptor = BN_POS;
+    }
+    
+    // std::deque throws exceptions when a memory error occurs
+    try {
+        const container_type& lrg = (numData.size() >= num.numData.size()) ? numData : num.numData;
+        const container_type& sml = (&lrg == &numData) ? num.numData : numData;
+        void (*addDigit)(container_type&, unsigned, unsigned);
+
+        addDigit = [](container_type& bn, unsigned n, unsigned iter)->void {
+            double_t remainder = n;
+
+            if (bn.size() == 0) {
+                bn.push_back(base_double{SINGLE_BASE_MIN});
+            }
+
+            while (remainder) {
+                if (iter == bn.size()) {
+                    bn.push_back(base_double{SINGLE_BASE_MIN});
+                }
+
+                // separate the lower and upper-magnitude digits
+                double_t digit = bn[iter] + remainder;
+                double_t lowDigit = digit % (base_double{SINGLE_BASE_MAX}+base_double{1});
+                digit -= lowDigit;
+
+                // add and carry if the current digit is greater than NUM_MAX
+                remainder = digit / (base_double{SINGLE_BASE_MAX}+base_double{1});
+
+                bn[iter] = lowDigit;
+                ++iter;
+            }
+        };
+
+        for (unsigned i = 0; i < lrg.size(); ++i) {
+            const unsigned aDigit = lrg[i];
+
+            for (unsigned j = 0; j < sml.size(); ++j) {
+                const single_t bDigit = sml[j];
+                const single_t retDigit = aDigit*bDigit;
+
+                addDigit(ret.numData, retDigit, i+j);
+            }
+        }
+        
+        *this = std::move(ret);
+    }
+    catch(const std::exception& e) {
+        // Mark the number as positive infinite as this was likely the cause of an allocation failure.
+        descriptor = (num.descriptor == BN_POS) ? BN_POS_INF : BN_NEG_INF;
+        
+        numData.clear();
+        
+        throw e;
+    }
+    
+    return *this;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

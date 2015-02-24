@@ -522,6 +522,15 @@ class bn_type final {
         bn_type operator - (const bn_type&) const;
         
         /**
+         * Multiply.
+         * 
+         * @param A bignum that will be multiplied into *this.
+         * 
+         * @return A copy of *this, with the parameter value multiplied.
+         */
+        bn_type operator * (const bn_type&) const;
+        
+        /**
          * Add with assignment.
          * 
          * @param A bignum that will be added to *this.
@@ -538,6 +547,15 @@ class bn_type final {
          * @return A reference to *this.
          */
         bn_type& operator -= (const bn_type&);
+        
+        /**
+         * Multiplication with assignment.
+         * 
+         * @param A bignum that will be multiplied to *this.
+         * 
+         * @return A reference to *this.
+         */
+        bn_type& operator *= (const bn_type&);
 };
 
 #include "impl/bn_type_impl.h"

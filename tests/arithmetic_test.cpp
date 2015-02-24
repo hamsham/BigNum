@@ -23,7 +23,7 @@ void test_##bnType() { \
         << "------------------------------------------------------------------\n" \
         << std::endl; \
     bnType testNum1 = {bn_desc_t::BN_NEG, {1, bnType::SINGLE_BASE_MAX, bnType::SINGLE_BASE_MAX}}; \
-    bnType testNum2 = {bn_desc_t::BN_POS, {bnType::SINGLE_BASE_MIN, 1}}; \
+    bnType testNum2 = {bn_desc_t::BN_POS, {bnType::SINGLE_BASE_MIN, 1, bnType::SINGLE_BASE_MIN}}; \
     \
     std::cout << LOG_DEBUG_COMP(testNum1, >, testNum2) << std::endl; \
     std::cout << LOG_DEBUG_COMP(testNum1, >=, testNum2) << std::endl; \
@@ -33,8 +33,10 @@ void test_##bnType() { \
     \
     std::cout << LOG_DEBUG_COMP(testNum1, +, testNum2) << std::endl; \
     std::cout << LOG_DEBUG_COMP(testNum1, -, testNum2) << std::endl; \
+    std::cout << LOG_DEBUG_COMP(testNum1, *, testNum2) << std::endl; \
     std::cout << LOG_DEBUG_COMP(testNum2, +, testNum1) << std::endl; \
     std::cout << LOG_DEBUG_COMP(testNum2, -, testNum1) << std::endl; \
+    std::cout << LOG_DEBUG_COMP(testNum2, *, testNum1) << std::endl; \
     std::cout << std::endl; \
      \
     testNum1.setDescriptor(BN_POS); \
@@ -48,8 +50,10 @@ void test_##bnType() { \
      \
     std::cout << LOG_DEBUG_COMP(testNum1, +, testNum2) << std::endl; \
     std::cout << LOG_DEBUG_COMP(testNum1, -, testNum2) << std::endl; \
+    std::cout << LOG_DEBUG_COMP(testNum1, *, testNum2) << std::endl; \
     std::cout << LOG_DEBUG_COMP(testNum2, +, testNum1) << std::endl; \
     std::cout << LOG_DEBUG_COMP(testNum2, -, testNum1) << std::endl; \
+    std::cout << LOG_DEBUG_COMP(testNum2, *, testNum1) << std::endl; \
     std::cout << "\n\n" << std::endl; \
 }
 

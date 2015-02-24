@@ -21,8 +21,8 @@ FC=gfortran
 AS=as
 
 # Macros
-CND_PLATFORM=MinGW-Windows
-CND_DLIB_EXT=dll
+CND_PLATFORM=GNU-Linux-x86
+CND_DLIB_EXT=so
 CND_CONF=Release
 CND_DISTDIR=dist
 CND_BUILDDIR=build
@@ -55,8 +55,8 @@ TESTFILES= \
 CFLAGS=
 
 # CC Compiler Flags
-CCFLAGS=-Wall -Werror -Wextra -pedantic -pedantic-errors -flto
-CXXFLAGS=-Wall -Werror -Wextra -pedantic -pedantic-errors -flto
+CCFLAGS=-Wall -Werror -Wextra -pedantic-errors -flto
+CXXFLAGS=-Wall -Werror -Wextra -pedantic-errors -flto
 
 # Fortran Compiler Flags
 FFLAGS=
