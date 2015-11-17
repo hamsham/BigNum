@@ -10,7 +10,7 @@
 
 #include <exception>
 
-#include "bn_setup.h"
+#include "bignum/bn_setup.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // BigNum Runtime Assertions.

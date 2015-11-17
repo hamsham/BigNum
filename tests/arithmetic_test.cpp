@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-#include "bignum.h"
+#include "bignum/bignum.h"
 
 /*
  * Use with an std::ostream

@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-#include "bn_setup.h"
+#include "bignum/bn_setup.h"
 
 /**
  * Specialization for a bignum to contain a number with an arbitrary minimum and
@@ -232,7 +232,7 @@ constexpr bool operator <= (const numType&, const bn_int_type<numType, intId>&);
 ///////////////////////////////////////////////////////////////////////////////
 // Implementation Header
 ///////////////////////////////////////////////////////////////////////////////
-#include "impl/bn_int_type_impl.h"
+#include "bignum/impl/bn_int_type_impl.h"
 
 #endif	/* __BN_INT_TYPE_H__ */
 

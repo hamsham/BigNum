@@ -9,7 +9,7 @@
 #include <ctime>
 #include <iostream>
 
-#include "bignum.h"
+#include "bignum/bignum.h"
 
 #define PRINT_TEST(x, op, y) \
     std::cout << x << BN_STRINGIFY(op) << y << "=" << (x op y) << std::endl

@@ -10,7 +10,7 @@
 
 #include <limits>
 
-#include "bn_setup.h"
+#include "bignum/bn_setup.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Custom implementation of std::numeric_limits<>
@@ -120,7 +120,7 @@ constexpr bn_limit_t bn_min_limit<BN_UINT64>();
 template<>
 constexpr bn_limit_t bn_max_limit<BN_UINT64>();
 
-#include "impl/bn_limits_impl.h"
+#include "bignum/impl/bn_limits_impl.h"
 
 #endif	/* __BN_LIMITS_H__ */
 

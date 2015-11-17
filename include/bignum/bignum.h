@@ -8,11 +8,11 @@
 #ifndef __BIGNUM_H__
 #define	__BIGNUM_H__
 
-#include "bn_setup.h"
-#include "bn_limits.h"
-#include "bn_except.h"
-#include "bn_int_type.h"
-#include "bn_type.h"
+#include "bignum/bn_setup.h"
+#include "bignum/bn_limits.h"
+#include "bignum/bn_except.h"
+#include "bignum/bn_int_type.h"
+#include "bignum/bn_type.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //          Typedefs Requiring Class Definitions

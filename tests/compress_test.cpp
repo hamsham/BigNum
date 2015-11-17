@@ -11,9 +11,11 @@
 #include <vector>
 #include <utility>
 
-#include "bignum.h"
+#include "bignum/bignum.h"
 
-#define TEST_FILE "testfile.txt"
+#ifndef BN_TEST_FILE
+    #define BN_TEST_FILE nullptr
+#endif
 
 struct fileInfo {
     uint64_t numCompressions = {0};
@@ -165,9 +167,21 @@ std::vector<std::string> parseArgs(int argc, char** argv) {
 int main(int argc, char** argv) {
     std::vector<std::string> argList = std::move(parseArgs(argc, argv));
     
-    if (argList.size() == 0) {
-        argList.emplace_back(std::string{TEST_FILE}); // test a default file
+    if (argList.empty()) {
+        if (BN_TEST_FILE == nullptr) {
+            std::cerr << "No sample file provided to the compression test." << std::endl;
+            return -1;
+        }
+        else {
+            argList.emplace_back(std::string{BN_TEST_FILE});
+        }
     }
+    
+    std::cout << "Attempting to compress and decompress the following files:";
+    for (const std::string& arg : argList) {
+        std::cout << "\n\t" << arg;
+    }
+    std::cout << std::endl;
     
     for (const std::string& arg : argList) {
         bignum num = {};

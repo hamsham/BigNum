@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-#include "bn_except.h"
+#include "bignum/bn_except.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // BigNum Runtime Assertions.

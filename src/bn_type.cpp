@@ -7,7 +7,7 @@
 
 #include <iostream> // iostream operations
 
-#include "bignum.h"
+#include "bignum/bignum.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Bignum types
