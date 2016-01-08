@@ -22,8 +22,8 @@ void test_##bnType() { \
         << "\t\t\t" << BN_STRINGIFY(bnType) << '\n' \
         << "------------------------------------------------------------------\n" \
         << std::endl; \
-    bnType testNum1 = {bn_desc_t::BN_NEG, {1, bnType::SINGLE_BASE_MAX, bnType::SINGLE_BASE_MAX}}; \
-    bnType testNum2 = {bn_desc_t::BN_POS, {bnType::SINGLE_BASE_MIN, 1, bnType::SINGLE_BASE_MIN}}; \
+    bnType testNum1 = {bn_desc_t::BN_NEG, {1, bn_max_limit<bnType::single_t>(), bn_max_limit<bnType::single_t>()}}; \
+    bnType testNum2 = {bn_desc_t::BN_POS, {bn_min_limit<bnType::single_t>(), 1, bn_min_limit<bnType::single_t>()}}; \
     \
     std::cout << LOG_DEBUG_COMP(testNum1, >, testNum2) << std::endl; \
     std::cout << LOG_DEBUG_COMP(testNum1, >=, testNum2) << std::endl; \

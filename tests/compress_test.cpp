@@ -53,7 +53,7 @@ std::ifstream::pos_type getNumBytes(std::ifstream& fin) {
 ///////////////////////////////////////////////////////////////////////////////
 bignum& setOptimalSubtractor(bignum::double_t numSubtracteeDigis, bignum& subtractor) {
     const bignum::double_t optimalSize = numSubtracteeDigis-1;
-    subtractor.resize(optimalSize, bignum::SINGLE_BASE_MAX);
+    subtractor.resize(optimalSize, bn_max_limit<bignum::single_t>());
     return subtractor;
 }
 
@@ -62,7 +62,7 @@ bignum& setOptimalSubtractor(bignum::double_t numSubtracteeDigis, bignum& subtra
 // amount of time using the data from a file.
 ///////////////////////////////////////////////////////////////////////////////
 const bignum getSubtractor(std::ifstream& fin) {
-    bignum ret = {BN_POS, {bignum::SINGLE_BASE_MAX}};
+    bignum ret = {BN_POS, {bn_max_limit<bignum::single_t>()}};
     bignum::double_t fileSize = getNumBytes(fin);
     
     if (fileSize == 0) {

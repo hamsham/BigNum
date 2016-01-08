@@ -33,10 +33,6 @@ constexpr bn_int_type<numType, intId>::bn_int_type(numType&& n) :
     num{n}
 {}
 
-template <typename numType, BN_UINT64 intId>
-inline bn_int_type<numType, intId>::~bn_int_type() {
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 // Assignment Operators
 ///////////////////////////////////////////////////////////////////////////////

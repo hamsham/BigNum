@@ -9,6 +9,7 @@
 #define	__BN_INT_TYPE_H__
 
 #include <iostream>
+#include <limits>
 
 #include "bignum/bn_setup.h"
 
@@ -35,7 +36,7 @@ class bn_int_type {
         constexpr bn_int_type(const numType&);
         constexpr bn_int_type(numType&&);
         
-        ~bn_int_type();
+        ~bn_int_type() = default;
         
         // assignment
         inline bn_int_type& operator=(const bn_int_type&);
@@ -128,6 +129,30 @@ class bn_int_type {
         constexpr bool operator<(const numType&) const;
         constexpr bool operator<=(const numType&) const;
 };
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Integral types for bignum specialization.
+///////////////////////////////////////////////////////////////////////////////
+// These top 3 specialization correlate with a limits definition to the values in impl/bn_limits_impl.h
+BN_DECLARE_CLASS(bn_int_type, bn_uint8, BN_UINT8, std::numeric_limits<BN_UINT8>::max());
+BN_DECLARE_CLASS(bn_int_type, bn_uint16, BN_UINT16, std::numeric_limits<BN_UINT16>::max());
+BN_DECLARE_CLASS(bn_int_type, bn_uint32, BN_UINT32, std::numeric_limits<BN_UINT32>::max());
+
+BN_DECLARE_CLASS(bn_int_type, bn_base2_single, BN_UINT8, 2);
+BN_DECLARE_CLASS(bn_int_type, bn_base2_double, BN_UINT16, 2);
+
+BN_DECLARE_CLASS(bn_int_type, bn_base8_single, BN_UINT16, 8);
+BN_DECLARE_CLASS(bn_int_type, bn_base8_double, BN_UINT32, 8);
+
+BN_DECLARE_CLASS(bn_int_type, bn_base10_single, BN_UINT32, 10);
+BN_DECLARE_CLASS(bn_int_type, bn_base10_double, BN_UINT64, 10);
+
+BN_DECLARE_CLASS(bn_int_type, bn_base16_single, BN_UINT32, 16);
+BN_DECLARE_CLASS(bn_int_type, bn_base16_double, BN_UINT64, 16);
+
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // std::iostream

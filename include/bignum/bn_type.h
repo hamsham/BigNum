@@ -8,7 +8,6 @@
 #ifndef __BIGNUM_TYPE_H__
 #define	__BIGNUM_TYPE_H__
 
-#include <deque>
 #include <initializer_list>
 #include <iostream>
 #include <limits>
@@ -47,15 +46,14 @@ enum bn_desc_t : int {
  * and progresses from low-values to high ones. It only prints in right-to-left
  * format (like base-10 decimal) when using ostreams.
  * 
- * @param base_singled
- * The basic precision type that will be used to perform bignum arithmetic
+ * @param limits_t
+ * Any class specialization of the bn_limits_t structure.
  * 
- * @param base_double
- * A type that can be used as a bignum's double-precision base. This parameter
- * assists in the actual arithmetic, allowing for numerical overflows/underflows
- * to be detected and accounted for.
+ * @param container_t
+ * A container which contains the union of members and methods found in between
+ * an std::vector and std::deque.
  */
-template <typename base_single = BN_SINGLE, typename base_double = BN_DOUBLE>
+template <class limits_t, class container_t>
 class bn_type final {
     /*
      * Friends
@@ -70,40 +68,22 @@ class bn_type final {
         /**
          * Storage container used by bignums
          */
-        typedef std::deque<base_single> container_type;
+        typedef container_t container_type;
         
         /**
          * Exposed single-precision type
          */
-        typedef base_single single_t;
+        typedef typename limits_t::base_single single_t;
         
         /**
          * Exposed double-precision type
          */
-        typedef base_double double_t;
+        typedef typename limits_t::base_double double_t;
         
         /**
-         * Numeric limits for the arithmetic values
+         * Exposed single-precision type
          */
-        enum : bn_limit_t {
-            /**
-             * Minimum value for the single-precision number
-             */
-            SINGLE_BASE_MIN = bn_min_limit<base_single>(),
-            /**
-             * Maximum value for the single-precision number
-             */
-            SINGLE_BASE_MAX = bn_max_limit<base_single>(),
-            
-            /**
-             * Minimum value for the double-precision number
-             */
-            DOUBLE_BASE_MIN = bn_min_limit<base_double>(),
-            /**
-             * Maximum value for the double-precision number
-             */
-            DOUBLE_BASE_MAX = bn_max_limit<base_double>()
-        };
+        typedef typename limits_t::base_single value_t;
         
         /**
          * Add a number into the first parameter.
@@ -233,9 +213,9 @@ class bn_type final {
         
         /**
          * Constructor with a number.
-         * The number input is NOT in base-10, but rather base-"base_single"
+         * The number input is NOT in base-10, but rather base-"single_t"
          */
-        bn_type(bn_desc_t, std::initializer_list<base_single>);
+        bn_type(bn_desc_t, std::initializer_list<single_t>);
         
         /**
          * Copy Constructor
@@ -324,7 +304,7 @@ class bn_type final {
          * Reserve a certain amount of memory for manipulating a certain amount
          * of digits
          */
-        void resize(typename container_type::size_type numDigits, base_single digits = SINGLE_BASE_MIN);
+        void resize(typename container_type::size_type numDigits, single_t digits = limits_t::SINGLE_BASE_MIN);
         
         /**
          * Get the size (number of digits) that are currently used.
@@ -337,9 +317,9 @@ class bn_type final {
          * Push a single digit to the position of highest magnitude within this
          * object's internal container.
          * 
-         * @param base_single
+         * @param single_t
          */
-        void push_front(base_single digit);
+        void push_front(single_t digit);
         
         /**
          * Remove a single digit from the position of highest magnitude within
@@ -351,9 +331,9 @@ class bn_type final {
          * Push a single digit to the position of lowest magnitude within this
          * object's internal container.
          * 
-         * @param base_single
+         * @param single_t
          */
-        void push_back(base_single digit);
+        void push_back(single_t digit);
         
         
         /**
@@ -368,9 +348,9 @@ class bn_type final {
          * Keep in mind that this object's numbers increase in magnitude from
          * the lowest index to the highest.
          * 
-         * @param base_single
+         * @param single_t
          */
-        void push(base_single digit, typename container_type::size_type pos);
+        void push(single_t digit, typename container_type::size_type pos);
         
         /**
          * Remove a single digit from an arbitrary position within this
@@ -379,7 +359,7 @@ class bn_type final {
          * Keep in mind that this object's numbers increase in magnitude from
          * the lowest index to the highest.
          * 
-         * @param base_single
+         * @param single_t
          */
         void pop(typename container_type::size_type pos);
         
@@ -399,9 +379,9 @@ class bn_type final {
          * An unsigned integral type.
          * 
          * @return
-         * A value of type "base_single."
+         * A value of type "single_t."
          */
-        base_single& operator[](typename container_type::size_type iter);
+        single_t& operator[](typename container_type::size_type iter);
         
         
         /**
@@ -414,9 +394,9 @@ class bn_type final {
          * An unsigned integral type.
          * 
          * @return
-         * A value of type "base_single."
+         * A value of type "single_t."
          */
-        base_single operator[](typename container_type::size_type iter) const;
+        single_t operator[](typename container_type::size_type iter) const;
         
         /**
          * Basic comparison

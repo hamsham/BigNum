@@ -8,8 +8,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Outputting to an ostream
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-std::ostream& operator << (std::ostream& ostr, const bn_type<base_single, base_double>& num) {
+template <class limits_t, class container_t>
+std::ostream& operator << (std::ostream& ostr, const bn_type<limits_t, container_t>& num) {
     if (num.getDescriptor() == BN_NEG) {
         ostr << '-';
     }
@@ -23,14 +23,14 @@ std::ostream& operator << (std::ostream& ostr, const bn_type<base_single, base_d
         return ostr << "NaN";
     }
     
-    const typename bn_type<base_single, base_double>::container_type& numList = num.getData();
+    const typename bn_type<limits_t, container_t>::container_type& numList = num.getData();
     
     // no elements available?
     if (numList.size() == 0) {
         return ostr << '0';
     }
     
-    typename bn_type<base_single, base_double>::container_type::size_type iter = numList.size();
+    typename bn_type<limits_t, container_t>::container_type::size_type iter = numList.size();
     while (iter--) {
         ostr << numList[iter];
     }
@@ -41,38 +41,70 @@ std::ostream& operator << (std::ostream& ostr, const bn_type<base_single, base_d
 ///////////////////////////////////////////////////////////////////////////////
 // Constructor
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-bn_type<base_single, base_double>::bn_type() {
+template <class limits_t, class container_t>
+bn_type<limits_t, container_t>::bn_type() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Constructor with a number.
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-bn_type<base_single, base_double>::bn_type(
+template <class limits_t, class container_t>
+bn_type<limits_t, container_t>::bn_type(
     bn_desc_t desc,
-    std::initializer_list<base_single> numList
+    std::initializer_list<single_t> numList
 ) :
     descriptor{desc},
     numData{}
 {
+    typedef std::initializer_list<single_t> initializer_list;
+
+    if (!numList.size()) {
+       return; 
+    }
+    
     bool emptyDigit = true;
-    for (base_single digit : numList) {
-        if (digit != base_single{SINGLE_BASE_MIN}) {
+    unsigned numInvalidItems = 0;
+    typename initializer_list::const_iterator iter;
+    typename container_type::size_type outIndex = numData.size();
+    
+    for (iter = numList.begin(); iter != numList.end(); ++iter) {
+        const typename initializer_list::value_type digit = *iter;
+        
+        // Check the input initializer list for zero-values. Leading
+        // zero-values cannot be added to the internal container (although)
+        // it's not prevented in the push_front methods).
+        if (digit != single_t{limits_t::SINGLE_BASE_MIN} && emptyDigit) {
+            ++numInvalidItems;
             emptyDigit = false;
         }
-        
-        if (!emptyDigit) {
-            numData.push_front(digit);
+        else {
+            continue;
         }
+        
+        // check to see if the internal container has been initialized.
+        if (!emptyDigit && numData.empty()) {
+            numData.resize(numList.size() - numInvalidItems);
+            
+            // stop more processing in the event that only zero-values had been
+            // found in the input initializer.
+            if (numData.empty()) {
+                return;
+            }
+            else {
+                outIndex = numData.size();
+            }
+        }
+        
+        // insert a digit!
+        numData[--outIndex] = digit;
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Copy Constructor
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-inline bn_type<base_single, base_double>::bn_type(const bn_type& num) :
+template <class limits_t, class container_t>
+inline bn_type<limits_t, container_t>::bn_type(const bn_type& num) :
     descriptor{num.descriptor},
     numData{num.numData}
 {}
@@ -80,8 +112,8 @@ inline bn_type<base_single, base_double>::bn_type(const bn_type& num) :
 ///////////////////////////////////////////////////////////////////////////////
 // Move Operator
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-inline bn_type<base_single, base_double>::bn_type(bn_type&& num) :
+template <class limits_t, class container_t>
+inline bn_type<limits_t, container_t>::bn_type(bn_type&& num) :
     descriptor{num.descriptor},
     numData{std::move(num.numData)}
 {
@@ -91,25 +123,25 @@ inline bn_type<base_single, base_double>::bn_type(bn_type&& num) :
 ///////////////////////////////////////////////////////////////////////////////
 // Get the raw data contained within a bignum.
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-inline const typename bn_type<base_single, base_double>::container_type&
-bn_type<base_single, base_double>::getData() const {
+template <class limits_t, class container_t>
+inline const typename bn_type<limits_t, container_t>::container_type&
+bn_type<limits_t, container_t>::getData() const {
     return numData;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Find out more about a bignum.
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-inline bn_desc_t bn_type<base_single, base_double>::getDescriptor() const {
+template <class limits_t, class container_t>
+inline bn_desc_t bn_type<limits_t, container_t>::getDescriptor() const {
     return descriptor;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Set the numerical descriptor for a bignum
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-void bn_type<base_single, base_double>::setDescriptor(bn_desc_t desc) {
+template <class limits_t, class container_t>
+void bn_type<limits_t, container_t>::setDescriptor(bn_desc_t desc) {
     // fall-through the non-representable types and clear data if necessary
     switch (desc) {
         case bn_desc_t::BN_NAN:
@@ -124,41 +156,41 @@ void bn_type<base_single, base_double>::setDescriptor(bn_desc_t desc) {
 ///////////////////////////////////////////////////////////////////////////////
 // Determine if a bignum is positive
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-inline bool bn_type<base_single, base_double>::isPositive() const {
+template <class limits_t, class container_t>
+inline bool bn_type<limits_t, container_t>::isPositive() const {
     return descriptor == BN_POS || descriptor == BN_POS_INF;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Determine if a bignum is negative
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-inline bool bn_type<base_single, base_double>::isNegative() const {
+template <class limits_t, class container_t>
+inline bool bn_type<limits_t, container_t>::isNegative() const {
     return descriptor == BN_NEG || descriptor == BN_NEG_INF;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Determine if a bignum is infinite
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-inline bool bn_type<base_single, base_double>::isInfinite() const {
+template <class limits_t, class container_t>
+inline bool bn_type<limits_t, container_t>::isInfinite() const {
     return descriptor == BN_POS_INF || descriptor == BN_NEG_INF;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Determine if a bignum is not a number.
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-inline bool bn_type<base_single, base_double>::isNan() const {
+template <class limits_t, class container_t>
+inline bool bn_type<limits_t, container_t>::isNan() const {
     return descriptor == BN_NAN;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Resize a bignum to contain a specific number of digits
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-inline void bn_type<base_single, base_double>::resize(
-    typename bn_type::container_type::size_type numDigits, base_single digits
+template <class limits_t, class container_t>
+inline void bn_type<limits_t, container_t>::resize(
+    typename bn_type::container_type::size_type numDigits, single_t digits
 ) {
     numData.resize(numDigits, digits);
 }
@@ -166,50 +198,50 @@ inline void bn_type<base_single, base_double>::resize(
 ///////////////////////////////////////////////////////////////////////////////
 // get the number of single digits
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-inline typename bn_type<base_single, base_double>::container_type::size_type
-bn_type<base_single, base_double>::size() const {
+template <class limits_t, class container_t>
+inline typename bn_type<limits_t, container_t>::container_type::size_type
+bn_type<limits_t, container_t>::size() const {
     return numData.size();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // push a number to the highest-order
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-inline void bn_type<base_single, base_double>::push_front(base_single digit) {
-    numData.push_front(digit);
+template <class limits_t, class container_t>
+inline void bn_type<limits_t, container_t>::push_front(single_t digit) {
+    numData.insert(numData.begin(), digit);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // remove the number of highest magnitude from this
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-inline void bn_type<base_single, base_double>::pop_front() {
-    numData.pop_front();
+template <class limits_t, class container_t>
+inline void bn_type<limits_t, container_t>::pop_front() {
+    numData.erase(numData.begin());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // push a number into the lowest magnitude.
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-inline void bn_type<base_single, base_double>::push_back(base_single digit) {
+template <class limits_t, class container_t>
+inline void bn_type<limits_t, container_t>::push_back(single_t digit) {
     numData.push_back(digit);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // remove the lowest-order digit
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-inline void bn_type<base_single, base_double>::pop_back() {
+template <class limits_t, class container_t>
+inline void bn_type<limits_t, container_t>::pop_back() {
     numData.pop_back();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // insert a digit into an arbitrary position
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-inline void bn_type<base_single, base_double>::push(
-    base_single digit, typename bn_type::container_type::size_type pos
+template <class limits_t, class container_t>
+inline void bn_type<limits_t, container_t>::push(
+    single_t digit, typename bn_type::container_type::size_type pos
 ) {
     numData.insert(numData.begin()+pos, digit);
 }
@@ -217,16 +249,16 @@ inline void bn_type<base_single, base_double>::push(
 ///////////////////////////////////////////////////////////////////////////////
 // remove a digit from this number
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-inline void bn_type<base_single, base_double>::pop(typename bn_type::container_type::size_type pos) {
+template <class limits_t, class container_t>
+inline void bn_type<limits_t, container_t>::pop(typename bn_type::container_type::size_type pos) {
     numData.erase(numData.begin()+pos);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Reset this bignum
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-inline void bn_type<base_single, base_double>::clear() {
+template <class limits_t, class container_t>
+inline void bn_type<limits_t, container_t>::clear() {
     descriptor = BN_POS;
     numData.clear();
 }
@@ -234,8 +266,9 @@ inline void bn_type<base_single, base_double>::clear() {
 ///////////////////////////////////////////////////////////////////////////////
 // Array Subscripting
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-inline base_single& bn_type<base_single, base_double>::operator[](typename container_type::size_type iter) {
+template <class limits_t, class container_t>
+inline typename limits_t::base_single&
+bn_type<limits_t, container_t>::operator[](typename container_type::size_type iter) {
     BN_ASSERT(iter < numData.size());
     return numData[iter];
 }
@@ -243,8 +276,9 @@ inline base_single& bn_type<base_single, base_double>::operator[](typename conta
 ///////////////////////////////////////////////////////////////////////////////
 // Array Subscripting (const)
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-inline base_single bn_type<base_single, base_double>::operator[](typename container_type::size_type iter) const {
+template <class limits_t, class container_t>
+inline typename limits_t::base_single
+bn_type<limits_t, container_t>::operator[](typename container_type::size_type iter) const {
     BN_ASSERT(iter < numData.size());
     return numData[iter];
 }
@@ -252,8 +286,8 @@ inline base_single bn_type<base_single, base_double>::operator[](typename contai
 ///////////////////////////////////////////////////////////////////////////////
 // Basic comparison
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-inline bool bn_type<base_single, base_double>::operator==(const bn_type& num) const {
+template <class limits_t, class container_t>
+inline bool bn_type<limits_t, container_t>::operator==(const bn_type& num) const {
     if (this->descriptor != num.descriptor) {
         return false;
     }
@@ -263,8 +297,8 @@ inline bool bn_type<base_single, base_double>::operator==(const bn_type& num) co
 ///////////////////////////////////////////////////////////////////////////////
 // Basic "not" comparison
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-inline bool bn_type<base_single, base_double>::operator!=(const bn_type& num) const {
+template <class limits_t, class container_t>
+inline bool bn_type<limits_t, container_t>::operator!=(const bn_type& num) const {
     if (this->descriptor != num.descriptor) {
         return true;
     }
@@ -274,8 +308,8 @@ inline bool bn_type<base_single, base_double>::operator!=(const bn_type& num) co
 ///////////////////////////////////////////////////////////////////////////////
  // Greater than operator
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-bool bn_type<base_single, base_double>::operator > (const bn_type& num) const {
+template <class limits_t, class container_t>
+bool bn_type<limits_t, container_t>::operator > (const bn_type& num) const {
     if (this->descriptor == BN_POS && num.descriptor == BN_NEG) {
         return true;
     }
@@ -293,8 +327,8 @@ bool bn_type<base_single, base_double>::operator > (const bn_type& num) const {
 ///////////////////////////////////////////////////////////////////////////////
 // Greater than/equal to operator
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-bool bn_type<base_single, base_double>::operator >= (const bn_type& num) const {
+template <class limits_t, class container_t>
+bool bn_type<limits_t, container_t>::operator >= (const bn_type& num) const {
     if (this->descriptor == BN_POS && num.descriptor == BN_NEG) {
         return true;
     }
@@ -312,8 +346,8 @@ bool bn_type<base_single, base_double>::operator >= (const bn_type& num) const {
 ///////////////////////////////////////////////////////////////////////////////
 // Less than operator
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-bool bn_type<base_single, base_double>::operator < (const bn_type& num) const {
+template <class limits_t, class container_t>
+bool bn_type<limits_t, container_t>::operator < (const bn_type& num) const {
     if (this->descriptor == BN_POS && num.descriptor == BN_NEG) {
         return false;
     }
@@ -331,8 +365,8 @@ bool bn_type<base_single, base_double>::operator < (const bn_type& num) const {
 ///////////////////////////////////////////////////////////////////////////////
 // Less than/equal to operator
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-bool bn_type<base_single, base_double>::operator <= (const bn_type& num) const {
+template <class limits_t, class container_t>
+bool bn_type<limits_t, container_t>::operator <= (const bn_type& num) const {
     if (this->descriptor == BN_POS && num.descriptor == BN_NEG) {
         return false;
     }
@@ -350,9 +384,9 @@ bool bn_type<base_single, base_double>::operator <= (const bn_type& num) const {
 ///////////////////////////////////////////////////////////////////////////////
 // Copy assignment.
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-inline bn_type<base_single, base_double>&
-bn_type<base_single, base_double>::operator=(const bn_type& num) {
+template <class limits_t, class container_t>
+inline bn_type<limits_t, container_t>&
+bn_type<limits_t, container_t>::operator=(const bn_type& num) {
     descriptor = num.descriptor;
     numData = num.numData;
     return *this;
@@ -361,9 +395,9 @@ bn_type<base_single, base_double>::operator=(const bn_type& num) {
 ///////////////////////////////////////////////////////////////////////////////
 // Move assignment.
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-inline bn_type<base_single, base_double>&
-bn_type<base_single, base_double>::operator=(bn_type&& num) {
+template <class limits_t, class container_t>
+inline bn_type<limits_t, container_t>&
+bn_type<limits_t, container_t>::operator=(bn_type&& num) {
     descriptor = num.descriptor;
     num.descriptor = BN_POS;
 
@@ -375,9 +409,9 @@ bn_type<base_single, base_double>::operator=(bn_type&& num) {
 ///////////////////////////////////////////////////////////////////////////////
 // Add.
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-inline bn_type<base_single, base_double>
-bn_type<base_single, base_double>::operator + (const bn_type& num) const {
+template <class limits_t, class container_t>
+inline bn_type<limits_t, container_t>
+bn_type<limits_t, container_t>::operator + (const bn_type& num) const {
     bn_type ret = *this;
     ret += num;
     return ret;
@@ -386,9 +420,9 @@ bn_type<base_single, base_double>::operator + (const bn_type& num) const {
 ///////////////////////////////////////////////////////////////////////////////
 // Subtract.
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-inline bn_type<base_single, base_double>
-bn_type<base_single, base_double>::operator - (const bn_type& num) const {
+template <class limits_t, class container_t>
+inline bn_type<limits_t, container_t>
+bn_type<limits_t, container_t>::operator - (const bn_type& num) const {
     bn_type ret = *this;
     ret -= num;
     return ret;
@@ -397,9 +431,9 @@ bn_type<base_single, base_double>::operator - (const bn_type& num) const {
 ///////////////////////////////////////////////////////////////////////////////
 // Subtract.
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-inline bn_type<base_single, base_double>
-bn_type<base_single, base_double>::operator * (const bn_type& num) const {
+template <class limits_t, class container_t>
+inline bn_type<limits_t, container_t>
+bn_type<limits_t, container_t>::operator * (const bn_type& num) const {
     bn_type ret = *this;
     ret *= num;
     return ret;
@@ -408,9 +442,9 @@ bn_type<base_single, base_double>::operator * (const bn_type& num) const {
 ///////////////////////////////////////////////////////////////////////////////
 // Addition with assignment
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-bn_type<base_single, base_double>&
-bn_type<base_single, base_double>::operator +=(const bn_type& num) {
+template <class limits_t, class container_t>
+bn_type<limits_t, container_t>&
+bn_type<limits_t, container_t>::operator +=(const bn_type& num) {
     // Make sure no unneeded calculations are performed
     if (!isComputable(descriptor)) {
         numData.clear();
@@ -476,17 +510,19 @@ bn_type<base_single, base_double>::operator +=(const bn_type& num) {
 ///////////////////////////////////////////////////////////////////////////////
 // Addition implementation to two numbers with the same sign.
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-void bn_type<base_single, base_double>::absValAdd(
+template <class limits_t, class container_t>
+void bn_type<limits_t, container_t>::absValAdd(
     container_type& outNum,
     const container_type& inNum
 ) {
+    constexpr double_t SINGLE_BASE_MAX = bn_max_limit<single_t>();
+    
     // numerical iterators
     typename container_type::size_type outIter = 0;
     typename container_type::size_type inIter = 0;
     
     // arithmetic remainder
-    base_single remainder = 0;
+    single_t remainder = 0;
     
     while (true) {
         // add a number to this object's container if necessary
@@ -495,12 +531,13 @@ void bn_type<base_single, base_double>::absValAdd(
         }
         
         // get the single digits that are to be added
-        const base_double inDigit = (inIter < inNum.size()) ? inNum[inIter] : base_double{0};
-        const base_double outDigit = outNum[outIter] + inDigit + remainder;
+        const double_t inDigit = (inIter < inNum.size()) ? inNum[inIter] : double_t{0};
+        const double_t outDigit = outNum[outIter] + inDigit + remainder;
         
         // allow integer overflow to handle the resulting value.
         if (SINGLE_BASE_MAX < outDigit) {
-            outNum[outIter] = outDigit-base_double{SINGLE_BASE_MAX}-base_double{1};
+            const single_t overflow = SINGLE_BASE_MAX-double_t{1};
+            outNum[outIter] = outDigit-overflow;
             remainder = 1;
         }
         else {
@@ -522,9 +559,9 @@ void bn_type<base_single, base_double>::absValAdd(
 ///////////////////////////////////////////////////////////////////////////////
 // Subtraction with assignment
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-bn_type<base_single, base_double>&
-bn_type<base_single, base_double>::operator -=(const bn_type& num) {
+template <class limits_t, class container_t>
+bn_type<limits_t, container_t>&
+bn_type<limits_t, container_t>::operator -=(const bn_type& num) {
     // Make sure no unneeded calculations are performed
     if (!isComputable(descriptor)) {
         numData.clear();
@@ -586,8 +623,8 @@ bn_type<base_single, base_double>::operator -=(const bn_type& num) {
 ///////////////////////////////////////////////////////////////////////////////
 // Subtraction implementation
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-void bn_type<base_single, base_double>::absValSub(
+template <class limits_t, class container_t>
+void bn_type<limits_t, container_t>::absValSub(
     container_type& largerNum,
     const container_type& smallerNum
 ) {
@@ -598,25 +635,27 @@ void bn_type<base_single, base_double>::absValSub(
             throw bnUnderflow{};
         }
     #endif
+
+    constexpr double_t SINGLE_BASE_MAX = bn_max_limit<single_t>();
     
     // numerical iterators
     typename container_type::size_type outIter = 0;
     typename container_type::size_type inIter = 0;
     
     // borrow/carry counter
-    base_double numBorrowed = 0;
+    double_t numBorrowed = 0;
     
     while (true) {
         // get the single digits that are to be added
-        const base_double inDigit = (inIter < smallerNum.size()) ? smallerNum[inIter] : base_double{0};
-        const base_double outDigit = (largerNum[outIter]-numBorrowed)-inDigit;
+        const double_t inDigit = (inIter < smallerNum.size()) ? smallerNum[inIter] : double_t{0};
+        const double_t outDigit = (largerNum[outIter]-numBorrowed)-inDigit;
         
         if (SINGLE_BASE_MAX < outDigit) {
-            largerNum[outIter] = (base_single)(outDigit+base_double{SINGLE_BASE_MAX}+base_double{1});
+            largerNum[outIter] = (single_t)(outDigit+SINGLE_BASE_MAX+double_t{1});
             numBorrowed = 1;
         }
         else {
-            largerNum[outIter] = (base_single)outDigit;
+            largerNum[outIter] = (single_t)outDigit;
             numBorrowed = 0;
         }
         
@@ -645,9 +684,11 @@ void bn_type<base_single, base_double>::absValSub(
 ///////////////////////////////////////////////////////////////////////////////
 // Subtraction with assignment
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-bn_type<base_single, base_double>&
-bn_type<base_single, base_double>::operator *=(const bn_type& num) {
+template <class limits_t, class container_t>
+bn_type<limits_t, container_t>&
+bn_type<limits_t, container_t>::operator *=(const bn_type& num) {
+    constexpr double_t SINGLE_BASE_MAX = bn_max_limit<single_t>();
+    
     // Make sure no unneeded calculations are performed
     if (!isComputable(descriptor)) {
         numData.clear();
@@ -681,21 +722,22 @@ bn_type<base_single, base_double>::operator *=(const bn_type& num) {
             double_t remainder = n;
 
             if (bn.size() == 0) {
-                bn.push_back(base_double{SINGLE_BASE_MIN});
+                bn.push_back(double_t{limits_t::SINGLE_BASE_MIN});
             }
 
             while (remainder) {
                 if (iter == bn.size()) {
-                    bn.push_back(base_double{SINGLE_BASE_MIN});
+                    bn.push_back(double_t{limits_t::SINGLE_BASE_MIN});
                 }
 
                 // separate the lower and upper-magnitude digits
                 double_t digit = bn[iter] + remainder;
-                double_t lowDigit = digit % (base_double{SINGLE_BASE_MAX}+base_double{1});
+                const double_t lowDigit = digit % (SINGLE_BASE_MAX+double_t{1});
+                
                 digit -= lowDigit;
 
                 // add and carry if the current digit is greater than NUM_MAX
-                remainder = digit / (base_double{SINGLE_BASE_MAX}+base_double{1});
+                remainder = digit / (SINGLE_BASE_MAX+double_t{1});
 
                 bn[iter] = lowDigit;
                 ++iter;
@@ -730,8 +772,8 @@ bn_type<base_single, base_double>::operator *=(const bn_type& num) {
 ///////////////////////////////////////////////////////////////////////////////
 // Equating implementation
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-bool bn_type<base_single, base_double>::absValIsEqual(
+template <class limits_t, class container_t>
+bool bn_type<limits_t, container_t>::absValIsEqual(
     const container_type& num1,
     const container_type& num2
 ) {
@@ -754,8 +796,8 @@ bool bn_type<base_single, base_double>::absValIsEqual(
 ///////////////////////////////////////////////////////////////////////////////
 // Greater than implementation
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-bool bn_type<base_single, base_double>::absValIsGreater(
+template <class limits_t, class container_t>
+bool bn_type<limits_t, container_t>::absValIsGreater(
     const container_type& num1,
     const container_type& num2
 ) {
@@ -781,8 +823,8 @@ bool bn_type<base_single, base_double>::absValIsGreater(
 ///////////////////////////////////////////////////////////////////////////////
 // Greater than or equal to implementation
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-bool bn_type<base_single, base_double>::absValIsGreaterOrEqual(
+template <class limits_t, class container_t>
+bool bn_type<limits_t, container_t>::absValIsGreaterOrEqual(
     const container_type& num1,
     const container_type& num2
 ) {
@@ -811,8 +853,8 @@ bool bn_type<base_single, base_double>::absValIsGreaterOrEqual(
 ///////////////////////////////////////////////////////////////////////////////
 // Less than implementation
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-bool bn_type<base_single, base_double>::absValIsLess(
+template <class limits_t, class container_t>
+bool bn_type<limits_t, container_t>::absValIsLess(
     const container_type& num1,
     const container_type& num2
 ) {
@@ -838,8 +880,8 @@ bool bn_type<base_single, base_double>::absValIsLess(
 ///////////////////////////////////////////////////////////////////////////////
 // Less than or equal to implementation
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-bool bn_type<base_single, base_double>::absValIsLessOrEqual(
+template <class limits_t, class container_t>
+bool bn_type<limits_t, container_t>::absValIsLessOrEqual(
     const container_type& num1,
     const container_type& num2
 ) {
@@ -868,8 +910,8 @@ bool bn_type<base_single, base_double>::absValIsLessOrEqual(
 ///////////////////////////////////////////////////////////////////////////////
 // Computation sanity check
 ///////////////////////////////////////////////////////////////////////////////
-template <typename base_single, typename base_double>
-bool bn_type<base_single, base_double>::isComputable(bn_desc_t desc) {
+template <class limits_t, class container_t>
+bool bn_type<limits_t, container_t>::isComputable(bn_desc_t desc) {
     switch(desc) {
         case BN_NAN:
         case BN_POS_INF:

@@ -12,12 +12,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Bignum types
 ///////////////////////////////////////////////////////////////////////////////
-BN_DEFINE_CLASS(bn_type, BN_UINT8, BN_UINT16);
-BN_DEFINE_CLASS(bn_type, BN_UINT16, BN_UINT32);
-BN_DEFINE_CLASS(bn_type, BN_UINT32, BN_UINT64);
+BN_DEFINE_CLASS(bn_type, bn_limits_lowp, bn_default_container_t<bn_limits_lowp::base_single>);
+BN_DEFINE_CLASS(bn_type, bn_limits_medp, bn_default_container_t<bn_limits_medp::base_single>);
+BN_DEFINE_CLASS(bn_type, bn_limits_highp, bn_default_container_t<bn_limits_highp::base_single>);
 
-BN_DEFINE_CLASS(bn_type, bn_base2_single, bn_base2_single);
-BN_DEFINE_CLASS(bn_type, bn_base8_single, bn_base8_single);
-BN_DEFINE_CLASS(bn_type, bn_base10_single, bn_base10_single);
-BN_DEFINE_CLASS(bn_type, bn_base16_single, bn_base16_single);
+BN_DEFINE_CLASS(bn_type, bn_limits_base2, bn_default_container_t<bn_limits_base2::base_single>);
+BN_DEFINE_CLASS(bn_type, bn_limits_base8, bn_default_container_t<bn_limits_base8::base_single>);
+BN_DEFINE_CLASS(bn_type, bn_limits_base10, bn_default_container_t<bn_limits_base10::base_single>);
+BN_DEFINE_CLASS(bn_type, bn_limits_base16, bn_default_container_t<bn_limits_base16::base_single>);
 
