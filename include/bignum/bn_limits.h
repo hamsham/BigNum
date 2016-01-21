@@ -186,14 +186,14 @@ struct bn_limits_t {
 ///////////////////////////////////////////////////////////////////////////////
 // Extern template declarations and typedefs
 ///////////////////////////////////////////////////////////////////////////////
-BN_DECLARE_CLASS(bn_limits_t, bn_limits_lowp, BN_UINT8, BN_UINT16);
-BN_DECLARE_CLASS(bn_limits_t, bn_limits_medp, BN_UINT16, BN_UINT32);
-BN_DECLARE_CLASS(bn_limits_t, bn_limits_highp, BN_UINT32, BN_UINT64);
+BN_DECLARE_STRUCT(bn_limits_t, bn_limits_lowp, BN_UINT8, BN_UINT16);
+BN_DECLARE_STRUCT(bn_limits_t, bn_limits_medp, BN_UINT16, BN_UINT32);
+BN_DECLARE_STRUCT(bn_limits_t, bn_limits_highp, BN_UINT32, BN_UINT64);
 
-BN_DECLARE_CLASS(bn_limits_t, bn_limits_base2, bn_base2_single, bn_base2_single);
-BN_DECLARE_CLASS(bn_limits_t, bn_limits_base8, bn_base8_single, bn_base8_single);
-BN_DECLARE_CLASS(bn_limits_t, bn_limits_base10, bn_base10_single, bn_base10_single);
-BN_DECLARE_CLASS(bn_limits_t, bn_limits_base16, bn_base16_single, bn_base16_single);
+BN_DECLARE_STRUCT(bn_limits_t, bn_limits_base2, bn_base2_single, bn_base2_single);
+BN_DECLARE_STRUCT(bn_limits_t, bn_limits_base8, bn_base8_single, bn_base8_single);
+BN_DECLARE_STRUCT(bn_limits_t, bn_limits_base10, bn_base10_single, bn_base10_single);
+BN_DECLARE_STRUCT(bn_limits_t, bn_limits_base16, bn_base16_single, bn_base16_single);
 
 #endif	/* __BN_LIMITS_H__ */
 

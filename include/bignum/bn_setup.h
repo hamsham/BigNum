@@ -14,12 +14,33 @@
 
 #include <cstdint>
 
+
+
 /**
  * Preprocessor String Macro
  */
 #ifndef BN_STRINGIFY
     #define BN_STRINGIFY(x) #x
 #endif
+
+
+
+/**
+ * Macro to allow for templated structs to be declared in header files without
+ * any instantiations.
+ */
+#define BN_DECLARE_STRUCT(type, nickname, ...)\
+    extern template struct type<__VA_ARGS__>;\
+    typedef type<__VA_ARGS__> nickname
+
+/**
+ * Macro to allow for templated structs to be defined/instantiated in a single
+ * compilation unit.
+ */
+#define BN_DEFINE_STRUCT(type, ...)\
+    template struct type<__VA_ARGS__>
+
+
 
 /**
  * Macro to allow for templated classes to be declared in header files without
@@ -35,6 +56,8 @@
  */
 #define BN_DEFINE_CLASS(type, ...)\
     template class type<__VA_ARGS__>
+
+
 
 /*
  * Fixed-sized types that are used for built-in bignum types

@@ -86,32 +86,6 @@ class bn_type final {
         typedef typename limits_t::base_single value_t;
         
         /**
-         * Add a number into the first parameter.
-         * This function is not designed to compare a bignum's descriptors.
-         * 
-         * @param The bignum_type where all numerical values will be
-         * accumulated.
-         * 
-         * @param A number to add into the first.
-         */
-        static void absValAdd(container_type&, const container_type&);
-        
-        /**
-         * Subtract a number from the first parameter.
-         * The output parameter MUST be greater than the input, in both size and
-         * numerical value.
-         * This function is not designed to compare a bignum's descriptors.
-         * 
-         * @param The bignum_type where all numerical values will be
-         * accumulated. This value MUST have an absolute value that is greater
-         * than or equal to the second parameter.
-         * 
-         * @param A number to subtract from the first. This value MUST have an
-         * absolute value that is less than or equal to the first parameter.
-         */
-        static void absValSub(container_type& largerNum, const container_type& smallerNum);
-        
-        /**
          * Compare the raw numerical data contained within a bignum.
          * This function is not designed to compare a bignum's descriptors.
          * 

@@ -20,8 +20,8 @@
  * 
  * @param A number to add into the first.
  */
-template <typename container_type>
-void absValAdd(container_type&, const container_type&);
+template <typename limits_t, typename container_t>
+void absValAdd(container_t& outNum, const container_t& inNum);
 
 
 

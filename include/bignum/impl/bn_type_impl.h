@@ -5,6 +5,10 @@
  * Created on July 18, 2014, 12:45 PM
  */
 
+#include "bignum/bn_addition.h"
+#include "bignum/bn_subtraction.h"
+#include "bignum/bn_multiplication.h"
+
 ///////////////////////////////////////////////////////////////////////////////
 // Outputting to an ostream
 ///////////////////////////////////////////////////////////////////////////////
@@ -445,6 +449,7 @@ bn_type<limits_t, container_t>::operator * (const bn_type& num) const {
 template <class limits_t, class container_t>
 bn_type<limits_t, container_t>&
 bn_type<limits_t, container_t>::operator +=(const bn_type& num) {
+    
     // Make sure no unneeded calculations are performed
     if (!isComputable(descriptor)) {
         numData.clear();
@@ -456,19 +461,19 @@ bn_type<limits_t, container_t>::operator +=(const bn_type& num) {
     try {
         // add two positive numbers
         if (this->descriptor == BN_POS && num.descriptor == BN_POS) {
-            absValAdd(numData, num.numData);
+            absValAdd<limits_t, container_t>(numData, num.numData);
         }
         // add a negative to a positive
         else if (this->descriptor == BN_POS && num.descriptor == BN_NEG) {
             // make sure that only the larger number is added
             if (absValIsGreaterOrEqual(this->numData, num.numData)) {
                 // subtract as normal
-                absValSub(numData, num.numData);
+                absValSub<limits_t, container_t>(numData, num.numData);
                 return *this;
             }
             else {
                 bn_type tempNum = num;
-                absValSub(tempNum.numData, numData);
+                absValSub<limits_t, container_t>(tempNum.numData, numData);
                 tempNum.descriptor = BN_NEG;
                 *this = std::move(tempNum);
                 return *this;
@@ -479,12 +484,12 @@ bn_type<limits_t, container_t>::operator +=(const bn_type& num) {
             // make sure that only the larger number is added
             if (absValIsGreaterOrEqual(this->numData, num.numData)) {
                 // subtract as normal
-                absValSub(numData, num.numData);
+                absValSub<limits_t, container_t>(numData, num.numData);
                 return *this;
             }
             else {
                 bn_type tempNum = num;
-                absValSub(tempNum.numData, numData);
+                absValSub<limits_t, container_t>(tempNum.numData, numData);
                 tempNum.descriptor = BN_POS;
                 *this = std::move(tempNum);
                 return *this;
@@ -492,7 +497,7 @@ bn_type<limits_t, container_t>::operator +=(const bn_type& num) {
         }
         // add a negative to a negative
         else {
-            absValAdd(numData, num.numData);
+            absValAdd<limits_t, container_t>(numData, num.numData);
         }
     }
     catch(const std::exception& e) {
@@ -508,60 +513,12 @@ bn_type<limits_t, container_t>::operator +=(const bn_type& num) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Addition implementation to two numbers with the same sign.
-///////////////////////////////////////////////////////////////////////////////
-template <class limits_t, class container_t>
-void bn_type<limits_t, container_t>::absValAdd(
-    container_type& outNum,
-    const container_type& inNum
-) {
-    constexpr double_t SINGLE_BASE_MAX = bn_max_limit<single_t>();
-    
-    // numerical iterators
-    typename container_type::size_type outIter = 0;
-    typename container_type::size_type inIter = 0;
-    
-    // arithmetic remainder
-    single_t remainder = 0;
-    
-    while (true) {
-        // add a number to this object's container if necessary
-        if (outIter == outNum.size()) {
-            outNum.push_back(0);
-        }
-        
-        // get the single digits that are to be added
-        const double_t inDigit = (inIter < inNum.size()) ? inNum[inIter] : double_t{0};
-        const double_t outDigit = outNum[outIter] + inDigit + remainder;
-        
-        // allow integer overflow to handle the resulting value.
-        if (SINGLE_BASE_MAX < outDigit) {
-            const single_t overflow = SINGLE_BASE_MAX-double_t{1};
-            outNum[outIter] = outDigit-overflow;
-            remainder = 1;
-        }
-        else {
-            outNum[outIter] = outDigit;
-            remainder = 0;
-        }
-        
-        // onto the next number
-        ++outIter;
-        ++inIter;
-        
-        // determine when to stop counting
-        if (outIter == outNum.size() && inIter >= inNum.size() && 0 == remainder) {
-            break;
-        }
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // Subtraction with assignment
 ///////////////////////////////////////////////////////////////////////////////
 template <class limits_t, class container_t>
 bn_type<limits_t, container_t>&
 bn_type<limits_t, container_t>::operator -=(const bn_type& num) {
+    
     // Make sure no unneeded calculations are performed
     if (!isComputable(descriptor)) {
         numData.clear();
@@ -576,33 +533,33 @@ bn_type<limits_t, container_t>::operator -=(const bn_type& num) {
             // make sure that only the larger number is added
             if (absValIsGreaterOrEqual(this->numData, num.numData)) {
                 // subtract as normal
-                absValSub(numData, num.numData);
+                absValSub<limits_t, container_t>(numData, num.numData);
             }
             else {
                 bn_type tempNum = num;
-                absValSub(tempNum.numData, numData);
+                absValSub<limits_t, container_t>(tempNum.numData, numData);
                 tempNum.descriptor = BN_NEG;
                 *this = std::move(tempNum);
             }
         }
         // subtract a negative from a positive
         else if (this->descriptor == BN_POS && num.descriptor == BN_NEG) {
-            absValAdd(numData, num.numData);
+            absValAdd<limits_t, container_t>(numData, num.numData);
         }
         // subtract a positive from a negative
         else if (this->descriptor == BN_NEG && num.descriptor == BN_POS) {
-            absValAdd(numData, num.numData);
+            absValAdd<limits_t, container_t>(numData, num.numData);
         }
         // subtract a negative from a negative
         else {
             // make sure that only the larger number is added
             if (absValIsGreaterOrEqual(this->numData, num.numData)) {
                 // subtract as normal
-                absValSub(numData, num.numData);
+                absValSub<limits_t, container_t>(numData, num.numData);
             }
             else {
                 bn_type tempNum = num;
-                absValSub(tempNum.numData, numData);
+                absValSub<limits_t, container_t>(tempNum.numData, numData);
                 tempNum.descriptor = BN_POS;
                 *this = std::move(tempNum);
             }
@@ -621,73 +578,11 @@ bn_type<limits_t, container_t>::operator -=(const bn_type& num) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Subtraction implementation
-///////////////////////////////////////////////////////////////////////////////
-template <class limits_t, class container_t>
-void bn_type<limits_t, container_t>::absValSub(
-    container_type& largerNum,
-    const container_type& smallerNum
-) {
-    #ifdef BN_DEBUG
-        if (largerNum.size() < smallerNum.size()
-        || absValIsLess(largerNum, smallerNum)
-        ) {
-            throw bnUnderflow{};
-        }
-    #endif
-
-    constexpr double_t SINGLE_BASE_MAX = bn_max_limit<single_t>();
-    
-    // numerical iterators
-    typename container_type::size_type outIter = 0;
-    typename container_type::size_type inIter = 0;
-    
-    // borrow/carry counter
-    double_t numBorrowed = 0;
-    
-    while (true) {
-        // get the single digits that are to be added
-        const double_t inDigit = (inIter < smallerNum.size()) ? smallerNum[inIter] : double_t{0};
-        const double_t outDigit = (largerNum[outIter]-numBorrowed)-inDigit;
-        
-        if (SINGLE_BASE_MAX < outDigit) {
-            largerNum[outIter] = (single_t)(outDigit+SINGLE_BASE_MAX+double_t{1});
-            numBorrowed = 1;
-        }
-        else {
-            largerNum[outIter] = (single_t)outDigit;
-            numBorrowed = 0;
-        }
-        
-        // onto the next number
-        ++outIter;
-        ++inIter;
-        
-        // determine when to stop counting
-        if (outIter == largerNum.size() && inIter >= smallerNum.size()) {
-            break;
-        }
-    }
-    
-    // pop off any remaining zeroes
-    typename container_type::size_type iter = largerNum.size();
-    while (iter--) {
-        if (0 ==largerNum[iter]) {
-            largerNum.pop_back();
-        }
-        else {
-            break;
-        }
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // Subtraction with assignment
 ///////////////////////////////////////////////////////////////////////////////
 template <class limits_t, class container_t>
 bn_type<limits_t, container_t>&
 bn_type<limits_t, container_t>::operator *=(const bn_type& num) {
-    constexpr double_t SINGLE_BASE_MAX = bn_max_limit<single_t>();
     
     // Make sure no unneeded calculations are performed
     if (!isComputable(descriptor)) {
@@ -714,47 +609,7 @@ bn_type<limits_t, container_t>::operator *=(const bn_type& num) {
     
     // std::deque throws exceptions when a memory error occurs
     try {
-        const container_type& lrg = (numData.size() >= num.numData.size()) ? numData : num.numData;
-        const container_type& sml = (&lrg == &numData) ? num.numData : numData;
-        void (*addDigit)(container_type&, unsigned, unsigned);
-
-        addDigit = [](container_type& bn, unsigned n, unsigned iter)->void {
-            double_t remainder = n;
-
-            if (bn.size() == 0) {
-                bn.push_back(double_t{limits_t::SINGLE_BASE_MIN});
-            }
-
-            while (remainder) {
-                if (iter == bn.size()) {
-                    bn.push_back(double_t{limits_t::SINGLE_BASE_MIN});
-                }
-
-                // separate the lower and upper-magnitude digits
-                double_t digit = bn[iter] + remainder;
-                const double_t lowDigit = digit % (SINGLE_BASE_MAX+double_t{1});
-                
-                digit -= lowDigit;
-
-                // add and carry if the current digit is greater than NUM_MAX
-                remainder = digit / (SINGLE_BASE_MAX+double_t{1});
-
-                bn[iter] = lowDigit;
-                ++iter;
-            }
-        };
-
-        for (unsigned i = 0; i < lrg.size(); ++i) {
-            const unsigned aDigit = lrg[i];
-
-            for (unsigned j = 0; j < sml.size(); ++j) {
-                const single_t bDigit = sml[j];
-                const single_t retDigit = aDigit*bDigit;
-
-                addDigit(ret.numData, retDigit, i+j);
-            }
-        }
-        
+        ret.numData = std::move(mulStrassen<limits_t, container_t>(numData, num.numData));
         *this = std::move(ret);
     }
     catch(const std::exception& e) {
