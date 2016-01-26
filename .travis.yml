@@ -1,0 +1,25 @@
+language: cpp
+sudo: required
+dist: trusty
+compiler:
+    - clang
+    - gcc
+
+git:
+    submodules: true
+
+branches:
+    only:
+        - master
+    
+before_install:
+    - sudo apt-get update -qq
+    
+before_script:
+    - git checkout master
+    - mkdir build
+    - cd build
+    - cmake .. -G"Unix Makefiles"
+
+script:
+    make
