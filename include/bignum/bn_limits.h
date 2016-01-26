@@ -136,7 +136,7 @@ constexpr bn_u64_t bn_max_limit<BN_UINT64>();
  * Numeric limits for the arithmetic values
  */
 template <typename base_single_t, typename base_double_t>
-struct bn_limits_t {
+struct BNLimitsType {
     
     /**
      * Exposed single-precision type
@@ -173,12 +173,12 @@ struct bn_limits_t {
     };
     
     // There is nothing in this class to instatiate
-    ~bn_limits_t() = delete;
-    bn_limits_t() = delete;
-    bn_limits_t(const bn_limits_t&) = delete;
-    bn_limits_t(bn_limits_t&&) = delete;
-    bn_limits_t& operator=(const bn_limits_t&) = delete;
-    bn_limits_t& operator=(bn_limits_t&&) = delete;
+    ~BNLimitsType() = delete;
+    BNLimitsType() = delete;
+    BNLimitsType(const BNLimitsType&) = delete;
+    BNLimitsType(BNLimitsType&&) = delete;
+    BNLimitsType& operator=(const BNLimitsType&) = delete;
+    BNLimitsType& operator=(BNLimitsType&&) = delete;
 };
 
 
@@ -186,14 +186,14 @@ struct bn_limits_t {
 ///////////////////////////////////////////////////////////////////////////////
 // Extern template declarations and typedefs
 ///////////////////////////////////////////////////////////////////////////////
-BN_DECLARE_STRUCT(bn_limits_t, bn_limits_lowp, BN_UINT8, BN_UINT16);
-BN_DECLARE_STRUCT(bn_limits_t, bn_limits_medp, BN_UINT16, BN_UINT32);
-BN_DECLARE_STRUCT(bn_limits_t, bn_limits_highp, BN_UINT32, BN_UINT64);
+BN_DECLARE_STRUCT(BNLimitsType, bn_limits_lowp, BN_UINT8, BN_UINT16);
+BN_DECLARE_STRUCT(BNLimitsType, bn_limits_medp, BN_UINT16, BN_UINT32);
+BN_DECLARE_STRUCT(BNLimitsType, bn_limits_highp, BN_UINT32, BN_UINT64);
 
-BN_DECLARE_STRUCT(bn_limits_t, bn_limits_base2, bn_base2_single, bn_base2_single);
-BN_DECLARE_STRUCT(bn_limits_t, bn_limits_base8, bn_base8_single, bn_base8_single);
-BN_DECLARE_STRUCT(bn_limits_t, bn_limits_base10, bn_base10_single, bn_base10_single);
-BN_DECLARE_STRUCT(bn_limits_t, bn_limits_base16, bn_base16_single, bn_base16_single);
+BN_DECLARE_STRUCT(BNLimitsType, bn_limits_base2, bn_base2_single, bn_base2_single);
+BN_DECLARE_STRUCT(BNLimitsType, bn_limits_base8, bn_base8_single, bn_base8_single);
+BN_DECLARE_STRUCT(BNLimitsType, bn_limits_base10, bn_base10_single, bn_base10_single);
+BN_DECLARE_STRUCT(BNLimitsType, bn_limits_base16, bn_base16_single, bn_base16_single);
 
 #endif	/* __BN_LIMITS_H__ */
 

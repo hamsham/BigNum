@@ -20,7 +20,7 @@
  * @return The product of both input numbers.
  */
 template <typename limits_t, typename container_t>
-container_t mulStrassen(const container_t& a, const container_t& b);
+container_t mul_strassen(const container_t& a, const container_t& b);
 
 
 
@@ -34,7 +34,7 @@ container_t mulStrassen(const container_t& a, const container_t& b);
  * @return The product of both input numbers.
  */
 template <typename limits_t, typename container_t>
-container_t mulNaive(const container_t& a, const container_t& b);
+container_t mul_naive(const container_t& a, const container_t& b);
 
 
 

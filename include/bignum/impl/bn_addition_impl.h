@@ -5,7 +5,7 @@
 // Addition implementation to two numbers with the same sign.
 ///////////////////////////////////////////////////////////////////////////////
 template <class limits_t, class container_t>
-void absValAdd(
+void abs_val_add(
     container_t& outNum,
     const container_t& inNum
 ) {

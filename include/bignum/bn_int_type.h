@@ -18,7 +18,7 @@
  * and maximum.
  */
 template <typename numType, BN_UINT64 intId>
-class bn_int_type {
+class BNIntType {
     /*
      * Public Members
      */
@@ -30,96 +30,96 @@ class bn_int_type {
      */
     public:
         // constructors
-        constexpr bn_int_type();
-        constexpr bn_int_type(const bn_int_type&);
-        constexpr bn_int_type(bn_int_type&&);
-        constexpr bn_int_type(const numType&);
-        constexpr bn_int_type(numType&&);
+        constexpr BNIntType();
+        constexpr BNIntType(const BNIntType&);
+        constexpr BNIntType(BNIntType&&);
+        constexpr BNIntType(const numType&);
+        constexpr BNIntType(numType&&);
         
-        ~bn_int_type() = default;
+        ~BNIntType() = default;
         
         // assignment
-        inline bn_int_type& operator=(const bn_int_type&);
-        inline bn_int_type& operator=(bn_int_type&&);
-        inline bn_int_type& operator=(const numType&);
-        inline bn_int_type& operator=(numType&&);
+        inline BNIntType& operator=(const BNIntType&);
+        inline BNIntType& operator=(BNIntType&&);
+        inline BNIntType& operator=(const numType&);
+        inline BNIntType& operator=(numType&&);
         
         // type-casting
         constexpr operator numType() const;
         
         // unary arithmetic
-        inline bn_int_type operator++(int);
-        inline bn_int_type operator--(int);
-        inline bn_int_type& operator++();
-        inline bn_int_type& operator--();
+        inline BNIntType operator++(int);
+        inline BNIntType operator--(int);
+        inline BNIntType& operator++();
+        inline BNIntType& operator--();
         
         // unary sign/bit ops
-        constexpr bn_int_type operator ! () const;
-        constexpr bn_int_type operator + () const;
-        constexpr bn_int_type operator - () const;
-        constexpr bn_int_type operator ~ () const;
+        constexpr BNIntType operator ! () const;
+        constexpr BNIntType operator + () const;
+        constexpr BNIntType operator - () const;
+        constexpr BNIntType operator ~ () const;
         
         //---------------------------------------------------------------------
         // Operations with another arbitrary number
         //---------------------------------------------------------------------
         // basic/binary arithmetic
-        constexpr bn_int_type operator + (const bn_int_type&) const;
-        constexpr bn_int_type operator - (const bn_int_type&) const;
-        constexpr bn_int_type operator * (const bn_int_type&) const;
-        constexpr bn_int_type operator / (const bn_int_type&) const;
-        constexpr bn_int_type operator % (const bn_int_type&) const;
-        constexpr bn_int_type operator & (const bn_int_type&) const;
-        constexpr bn_int_type operator | (const bn_int_type&) const;
-        constexpr bn_int_type operator ^ (const bn_int_type&) const;
-        constexpr bn_int_type operator >> (const bn_int_type&) const;
-        constexpr bn_int_type operator << (const bn_int_type&) const;
+        constexpr BNIntType operator + (const BNIntType&) const;
+        constexpr BNIntType operator - (const BNIntType&) const;
+        constexpr BNIntType operator * (const BNIntType&) const;
+        constexpr BNIntType operator / (const BNIntType&) const;
+        constexpr BNIntType operator % (const BNIntType&) const;
+        constexpr BNIntType operator & (const BNIntType&) const;
+        constexpr BNIntType operator | (const BNIntType&) const;
+        constexpr BNIntType operator ^ (const BNIntType&) const;
+        constexpr BNIntType operator >> (const BNIntType&) const;
+        constexpr BNIntType operator << (const BNIntType&) const;
         
         // arithmetic with assignment
-        inline bn_int_type& operator += (const bn_int_type&);
-        inline bn_int_type& operator -= (const bn_int_type&);
-        inline bn_int_type& operator *= (const bn_int_type&);
-        inline bn_int_type& operator /= (const bn_int_type&);
-        inline bn_int_type& operator %= (const bn_int_type&);
-        inline bn_int_type& operator &= (const bn_int_type&);
-        inline bn_int_type& operator |= (const bn_int_type&);
-        inline bn_int_type& operator ^= (const bn_int_type&);
-        inline bn_int_type& operator >>= (const bn_int_type&);
-        inline bn_int_type& operator <<= (const bn_int_type&);
+        inline BNIntType& operator += (const BNIntType&);
+        inline BNIntType& operator -= (const BNIntType&);
+        inline BNIntType& operator *= (const BNIntType&);
+        inline BNIntType& operator /= (const BNIntType&);
+        inline BNIntType& operator %= (const BNIntType&);
+        inline BNIntType& operator &= (const BNIntType&);
+        inline BNIntType& operator |= (const BNIntType&);
+        inline BNIntType& operator ^= (const BNIntType&);
+        inline BNIntType& operator >>= (const BNIntType&);
+        inline BNIntType& operator <<= (const BNIntType&);
         
         // boolean comparison
-        constexpr bool operator==(const bn_int_type&) const;
-        constexpr bool operator!=(const bn_int_type&) const;
-        constexpr bool operator>(const bn_int_type&) const;
-        constexpr bool operator>=(const bn_int_type&) const;
-        constexpr bool operator<(const bn_int_type&) const;
-        constexpr bool operator<=(const bn_int_type&) const;
+        constexpr bool operator==(const BNIntType&) const;
+        constexpr bool operator!=(const BNIntType&) const;
+        constexpr bool operator>(const BNIntType&) const;
+        constexpr bool operator>=(const BNIntType&) const;
+        constexpr bool operator<(const BNIntType&) const;
+        constexpr bool operator<=(const BNIntType&) const;
         
         //---------------------------------------------------------------------
         // Operations with POD types
         //---------------------------------------------------------------------
         // basic/binary arithmetic
-        constexpr bn_int_type operator + (const numType&) const;
-        constexpr bn_int_type operator - (const numType&) const;
-        constexpr bn_int_type operator * (const numType&) const;
-        constexpr bn_int_type operator / (const numType&) const;
-        constexpr bn_int_type operator % (const numType&) const;
-        constexpr bn_int_type operator & (const numType&) const;
-        constexpr bn_int_type operator | (const numType&) const;
-        constexpr bn_int_type operator ^ (const numType&) const;
-        constexpr bn_int_type operator >> (const numType&) const;
-        constexpr bn_int_type operator << (const numType&) const;
+        constexpr BNIntType operator + (const numType&) const;
+        constexpr BNIntType operator - (const numType&) const;
+        constexpr BNIntType operator * (const numType&) const;
+        constexpr BNIntType operator / (const numType&) const;
+        constexpr BNIntType operator % (const numType&) const;
+        constexpr BNIntType operator & (const numType&) const;
+        constexpr BNIntType operator | (const numType&) const;
+        constexpr BNIntType operator ^ (const numType&) const;
+        constexpr BNIntType operator >> (const numType&) const;
+        constexpr BNIntType operator << (const numType&) const;
         
         // arithmetic with assignment
-        inline bn_int_type& operator += (const numType&);
-        inline bn_int_type& operator -= (const numType&);
-        inline bn_int_type& operator *= (const numType&);
-        inline bn_int_type& operator /= (const numType&);
-        inline bn_int_type& operator %= (const numType&);
-        inline bn_int_type& operator &= (const numType&);
-        inline bn_int_type& operator |= (const numType&);
-        inline bn_int_type& operator ^= (const numType&);
-        inline bn_int_type& operator >>= (const numType&);
-        inline bn_int_type& operator <<= (const numType&);
+        inline BNIntType& operator += (const numType&);
+        inline BNIntType& operator -= (const numType&);
+        inline BNIntType& operator *= (const numType&);
+        inline BNIntType& operator /= (const numType&);
+        inline BNIntType& operator %= (const numType&);
+        inline BNIntType& operator &= (const numType&);
+        inline BNIntType& operator |= (const numType&);
+        inline BNIntType& operator ^= (const numType&);
+        inline BNIntType& operator >>= (const numType&);
+        inline BNIntType& operator <<= (const numType&);
         
         // boolean comparison
         constexpr bool operator==(const numType&) const;
@@ -136,21 +136,21 @@ class bn_int_type {
 // Integral types for bignum specialization.
 ///////////////////////////////////////////////////////////////////////////////
 // These top 3 specialization correlate with a limits definition to the values in impl/bn_limits_impl.h
-BN_DECLARE_CLASS(bn_int_type, bn_uint8, BN_UINT8, std::numeric_limits<BN_UINT8>::max());
-BN_DECLARE_CLASS(bn_int_type, bn_uint16, BN_UINT16, std::numeric_limits<BN_UINT16>::max());
-BN_DECLARE_CLASS(bn_int_type, bn_uint32, BN_UINT32, std::numeric_limits<BN_UINT32>::max());
+BN_DECLARE_CLASS(BNIntType, bn_uint8, BN_UINT8, std::numeric_limits<BN_UINT8>::max());
+BN_DECLARE_CLASS(BNIntType, bn_uint16, BN_UINT16, std::numeric_limits<BN_UINT16>::max());
+BN_DECLARE_CLASS(BNIntType, bn_uint32, BN_UINT32, std::numeric_limits<BN_UINT32>::max());
 
-BN_DECLARE_CLASS(bn_int_type, bn_base2_single, BN_UINT8, 2);
-BN_DECLARE_CLASS(bn_int_type, bn_base2_double, BN_UINT16, 2);
+BN_DECLARE_CLASS(BNIntType, bn_base2_single, BN_UINT8, 2);
+BN_DECLARE_CLASS(BNIntType, bn_base2_double, BN_UINT16, 2);
 
-BN_DECLARE_CLASS(bn_int_type, bn_base8_single, BN_UINT16, 8);
-BN_DECLARE_CLASS(bn_int_type, bn_base8_double, BN_UINT32, 8);
+BN_DECLARE_CLASS(BNIntType, bn_base8_single, BN_UINT16, 8);
+BN_DECLARE_CLASS(BNIntType, bn_base8_double, BN_UINT32, 8);
 
-BN_DECLARE_CLASS(bn_int_type, bn_base10_single, BN_UINT32, 10);
-BN_DECLARE_CLASS(bn_int_type, bn_base10_double, BN_UINT64, 10);
+BN_DECLARE_CLASS(BNIntType, bn_base10_single, BN_UINT32, 10);
+BN_DECLARE_CLASS(BNIntType, bn_base10_double, BN_UINT64, 10);
 
-BN_DECLARE_CLASS(bn_int_type, bn_base16_single, BN_UINT32, 16);
-BN_DECLARE_CLASS(bn_int_type, bn_base16_double, BN_UINT64, 16);
+BN_DECLARE_CLASS(BNIntType, bn_base16_single, BN_UINT32, 16);
+BN_DECLARE_CLASS(BNIntType, bn_base16_double, BN_UINT64, 16);
 
 
 
@@ -158,10 +158,10 @@ BN_DECLARE_CLASS(bn_int_type, bn_base16_double, BN_UINT64, 16);
 // std::iostream
 ///////////////////////////////////////////////////////////////////////////////
 template <typename numType, BN_UINT64 intId>
-inline std::ostream& operator << (std::ostream&, const bn_int_type<numType, intId>&);
+inline std::ostream& operator << (std::ostream&, const BNIntType<numType, intId>&);
 
 template <typename numType, BN_UINT64 intId>
-inline std::istream& operator >> (std::istream&, bn_int_type<numType, intId>&);
+inline std::istream& operator >> (std::istream&, BNIntType<numType, intId>&);
 
 ///////////////////////////////////////////////////////////////////////////////
 // R-Value Operations with POD types
@@ -170,89 +170,89 @@ inline std::istream& operator >> (std::istream&, bn_int_type<numType, intId>&);
 // basic/binary arithmetic
 //-----------------------------------------------------------------------------
 template <typename numType, BN_UINT64 intId>
-constexpr numType operator + (const numType&, const bn_int_type<numType, intId>&);
+constexpr numType operator + (const numType&, const BNIntType<numType, intId>&);
 
 template <typename numType, BN_UINT64 intId>
-constexpr numType operator - (const numType&, const bn_int_type<numType, intId>&);
+constexpr numType operator - (const numType&, const BNIntType<numType, intId>&);
 
 template <typename numType, BN_UINT64 intId>
-constexpr numType operator * (const numType&, const bn_int_type<numType, intId>&);
+constexpr numType operator * (const numType&, const BNIntType<numType, intId>&);
 
 template <typename numType, BN_UINT64 intId>
-constexpr numType operator / (const numType&, const bn_int_type<numType, intId>&);
+constexpr numType operator / (const numType&, const BNIntType<numType, intId>&);
 
 template <typename numType, BN_UINT64 intId>
-constexpr numType operator % (const numType&, const bn_int_type<numType, intId>&);
+constexpr numType operator % (const numType&, const BNIntType<numType, intId>&);
 
 template <typename numType, BN_UINT64 intId>
-constexpr numType operator & (const numType&, const bn_int_type<numType, intId>&);
+constexpr numType operator & (const numType&, const BNIntType<numType, intId>&);
 
 template <typename numType, BN_UINT64 intId>
-constexpr numType operator | (const numType&, const bn_int_type<numType, intId>&);
+constexpr numType operator | (const numType&, const BNIntType<numType, intId>&);
 
 template <typename numType, BN_UINT64 intId>
-constexpr numType operator ^ (const numType&, const bn_int_type<numType, intId>&);
+constexpr numType operator ^ (const numType&, const BNIntType<numType, intId>&);
 
 template <typename numType, BN_UINT64 intId>
-constexpr numType operator >> (const numType&, const bn_int_type<numType, intId>&);
+constexpr numType operator >> (const numType&, const BNIntType<numType, intId>&);
 
 template <typename numType, BN_UINT64 intId>
-constexpr numType operator << (const numType&, const bn_int_type<numType, intId>&);
+constexpr numType operator << (const numType&, const BNIntType<numType, intId>&);
 
 
 //-----------------------------------------------------------------------------
 // arithmetic with assignment
 //-----------------------------------------------------------------------------
 template <typename numType, BN_UINT64 intId>
-inline numType& operator += (numType&, const bn_int_type<numType, intId>&);
+inline numType& operator += (numType&, const BNIntType<numType, intId>&);
 
 template <typename numType, BN_UINT64 intId>
-inline numType& operator -= (numType&, const bn_int_type<numType, intId>&);
+inline numType& operator -= (numType&, const BNIntType<numType, intId>&);
 
 template <typename numType, BN_UINT64 intId>
-inline numType& operator *= (numType&, const bn_int_type<numType, intId>&);
+inline numType& operator *= (numType&, const BNIntType<numType, intId>&);
 
 template <typename numType, BN_UINT64 intId>
-inline numType& operator /= (numType&, const bn_int_type<numType, intId>&);
+inline numType& operator /= (numType&, const BNIntType<numType, intId>&);
 
 template <typename numType, BN_UINT64 intId>
-inline numType& operator %= (numType&, const bn_int_type<numType, intId>&);
+inline numType& operator %= (numType&, const BNIntType<numType, intId>&);
 
 template <typename numType, BN_UINT64 intId>
-inline numType& operator &= (numType&, const bn_int_type<numType, intId>&);
+inline numType& operator &= (numType&, const BNIntType<numType, intId>&);
 
 template <typename numType, BN_UINT64 intId>
-inline numType& operator |= (numType&, const bn_int_type<numType, intId>&);
+inline numType& operator |= (numType&, const BNIntType<numType, intId>&);
 
 template <typename numType, BN_UINT64 intId>
-inline numType& operator ^= (numType&, const bn_int_type<numType, intId>&);
+inline numType& operator ^= (numType&, const BNIntType<numType, intId>&);
 
 template <typename numType, BN_UINT64 intId>
-inline numType& operator >>= (numType&, const bn_int_type<numType, intId>&);
+inline numType& operator >>= (numType&, const BNIntType<numType, intId>&);
 
 template <typename numType, BN_UINT64 intId>
-inline numType& operator <<= (numType&, const bn_int_type<numType, intId>&);
+inline numType& operator <<= (numType&, const BNIntType<numType, intId>&);
 
 //-----------------------------------------------------------------------------
 // boolean comparison
 //-----------------------------------------------------------------------------
 template <typename numType, BN_UINT64 intId>
-constexpr bool operator == (const numType&, const bn_int_type<numType, intId>&);
+constexpr bool operator == (const numType&, const BNIntType<numType, intId>&);
 
 template <typename numType, BN_UINT64 intId>
-constexpr bool operator != (const numType&, const bn_int_type<numType, intId>&);
+constexpr bool operator != (const numType&, const BNIntType<numType, intId>&);
 
 template <typename numType, BN_UINT64 intId>
-constexpr bool operator > (const numType&, const bn_int_type<numType, intId>&);
+constexpr bool operator > (const numType&, const BNIntType<numType, intId>&);
 
 template <typename numType, BN_UINT64 intId>
-constexpr bool operator >= (const numType&, const bn_int_type<numType, intId>&);
+constexpr bool operator >= (const numType&, const BNIntType<numType, intId>&);
 
 template <typename numType, BN_UINT64 intId>
-constexpr bool operator < (const numType&, const bn_int_type<numType, intId>&);
+constexpr bool operator < (const numType&, const BNIntType<numType, intId>&);
 
 template <typename numType, BN_UINT64 intId>
-constexpr bool operator <= (const numType&, const bn_int_type<numType, intId>&);
+constexpr bool operator <= (const numType&, const BNIntType<numType, intId>&);
 
 ///////////////////////////////////////////////////////////////////////////////
 // Implementation Header

@@ -24,7 +24,7 @@
  * absolute value that is less than or equal to the first parameter.
  */
 template <typename limits_t, typename container_t>
-void absValSub(container_t& largerNum, const container_t& smallerNum);
+void abs_val_sub(container_t& largerNum, const container_t& smallerNum);
 
 
 

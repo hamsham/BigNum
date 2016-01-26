@@ -10,11 +10,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Bignum types
 ///////////////////////////////////////////////////////////////////////////////
-BN_DEFINE_STRUCT(bn_limits_t, BN_UINT8, BN_UINT16);
-BN_DEFINE_STRUCT(bn_limits_t, BN_UINT16, BN_UINT32);
-BN_DEFINE_STRUCT(bn_limits_t, BN_UINT32, BN_UINT64);
+BN_DEFINE_STRUCT(BNLimitsType, BN_UINT8, BN_UINT16);
+BN_DEFINE_STRUCT(BNLimitsType, BN_UINT16, BN_UINT32);
+BN_DEFINE_STRUCT(BNLimitsType, BN_UINT32, BN_UINT64);
 
-BN_DEFINE_STRUCT(bn_limits_t, bn_base2_single, bn_base2_single);
-BN_DEFINE_STRUCT(bn_limits_t, bn_base8_single, bn_base8_single);
-BN_DEFINE_STRUCT(bn_limits_t, bn_base10_single, bn_base10_single);
-BN_DEFINE_STRUCT(bn_limits_t, bn_base16_single, bn_base16_single);
+BN_DEFINE_STRUCT(BNLimitsType, bn_base2_single, bn_base2_single);
+BN_DEFINE_STRUCT(BNLimitsType, bn_base8_single, bn_base8_single);
+BN_DEFINE_STRUCT(BNLimitsType, bn_base10_single, bn_base10_single);
+BN_DEFINE_STRUCT(BNLimitsType, bn_base16_single, bn_base16_single);

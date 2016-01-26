@@ -11,15 +11,15 @@
 // Subtraction implementation
 ///////////////////////////////////////////////////////////////////////////////
 template <class limits_t, class container_t>
-void absValSub(
+void abs_val_sub(
     container_t& largerNum,
     const container_t& smallerNum
 ) {
     #ifdef BN_DEBUG
         if (largerNum.size() < smallerNum.size()
-        || absValIsLess(largerNum, smallerNum)
+        || abs_val_is_lt(largerNum, smallerNum)
         ) {
-            throw bnUnderflow{};
+            throw BNUnderflow{};
         }
     #endif
 

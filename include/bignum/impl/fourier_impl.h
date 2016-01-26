@@ -38,7 +38,7 @@ num_t nextPow2(num_t n) {
 
 
 template <typename flt_t>
-void fft(cmplx_list_t<flt_t>& x) {
+void fft_complex(cmplx_list_t<flt_t>& x) {
     static constexpr flt_t pi = 3.1415926535897932384626433832795;
     
     // in the event that an array was passed in with a non-power-of-two length.
@@ -69,8 +69,8 @@ void fft(cmplx_list_t<flt_t>& x) {
     }
 
     // TODO: Fix the recursion!
-    fft<flt_t>(evens);
-    fft<flt_t>(odds);
+    fft_complex<flt_t>(evens);
+    fft_complex<flt_t>(odds);
 
     // combine the even and odd partitions
     const cmplx_size_t<flt_t> nf = (flt_t)len;
@@ -88,12 +88,12 @@ void fft(cmplx_list_t<flt_t>& x) {
 
 
 template <typename flt_t>
-void ifft(cmplx_list_t<flt_t>& x) {
+void ifft_complex(cmplx_list_t<flt_t>& x) {
     for (cmplx_value_t<flt_t>& e : x) {
         e = std::conj(e);
     }
 
-    fft<flt_t>(x);
+    fft_complex<flt_t>(x);
 
     const flt_t len = static_cast<flt_t>(x.size());
 
@@ -149,7 +149,7 @@ void convolute_fft(cmplx_list_t<flt_t>& fftTable) {
     
 	// transform.
     cmplx_list_t<flt_t> transforms{fftTable};
-    fft<flt_t>(transforms);
+    fft_complex<flt_t>(transforms);
 
     // point-wise multiplication in frequency domain.
     for (cmplx_size_t<flt_t> i = 0; i < fftSize; ++i) {

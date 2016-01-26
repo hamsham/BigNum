@@ -92,16 +92,16 @@ void bn_runtime_assert(bool eval, bn_error_t, const char* str);
  * This exception should be thrown when a number cannot reallocate or has run
  * out of memory.
  */
-class bnNaN final : virtual public std::exception {
+class BNNaN final : virtual public std::exception {
     public:
-        bnNaN   ()                      noexcept = default;
-        bnNaN   (const bnNaN&)          noexcept = default;
-        bnNaN   (bnNaN&&)               noexcept = default;
+        BNNaN   ()                      noexcept = default;
+        BNNaN   (const BNNaN&)          noexcept = default;
+        BNNaN   (BNNaN&&)               noexcept = default;
         
-        virtual ~bnNaN() = default;
+        virtual ~BNNaN() = default;
         
-        bnNaN&              operator=   (const bnNaN&)  noexcept = default;
-        bnNaN&              operator=   (bnNaN&&)       noexcept = default;
+        BNNaN&              operator=   (const BNNaN&)  noexcept = default;
+        BNNaN&              operator=   (BNNaN&&)       noexcept = default;
         virtual const char* what        ()              const noexcept override;
 };
 
@@ -114,16 +114,16 @@ class bnNaN final : virtual public std::exception {
  * The implementation only allows for smaller or equal numbers to be subtracted
  * from larger ones.
  */
-class bnUnderflow final : virtual public std::exception {
+class BNUnderflow final : virtual public std::exception {
     public:
-        bnUnderflow         ()                      noexcept = default;
-        bnUnderflow         (const bnUnderflow&)    noexcept = default;
-        bnUnderflow         (bnUnderflow&&)         noexcept = default;
+        BNUnderflow         ()                      noexcept = default;
+        BNUnderflow         (const BNUnderflow&)    noexcept = default;
+        BNUnderflow         (BNUnderflow&&)         noexcept = default;
         
-        virtual ~bnUnderflow() = default;
+        virtual ~BNUnderflow() = default;
         
-        bnUnderflow&        operator=   (const bnUnderflow&)    noexcept = default;
-        bnUnderflow&        operator=   (bnUnderflow&&)         noexcept = default;
+        BNUnderflow&        operator=   (const BNUnderflow&)    noexcept = default;
+        BNUnderflow&        operator=   (BNUnderflow&&)         noexcept = default;
         virtual const char* what        ()                      const noexcept override;
 };
 

@@ -21,7 +21,7 @@
  * @param A number to add into the first.
  */
 template <typename limits_t, typename container_t>
-void absValAdd(container_t& outNum, const container_t& inNum);
+void abs_val_add(container_t& outNum, const container_t& inNum);
 
 
 

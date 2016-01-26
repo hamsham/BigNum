@@ -54,12 +54,12 @@ enum bn_desc_t : int {
  * an std::vector and std::deque.
  */
 template <class limits_t, class container_t>
-class bn_type final {
+class Bignum final {
     /*
      * Friends
      */
     template <typename bs, typename bd>
-    friend std::ostream& operator << (std::ostream&, const bn_type<bs, bd>&);
+    friend std::ostream& operator << (std::ostream&, const Bignum<bs, bd>&);
     
     /*
      * Public interface to non-member/static information.
@@ -86,79 +86,6 @@ class bn_type final {
         typedef typename limits_t::base_single value_t;
         
         /**
-         * Compare the raw numerical data contained within a bignum.
-         * This function is not designed to compare a bignum's descriptors.
-         * 
-         * @param const container_type&
-         * 
-         * @param const container_type&
-         * 
-         * @return TRUE if the two parameters are equal in numerical value,
-         * FALSE if otherwise.
-         */
-        static bool absValIsEqual(const container_type&, const container_type&);
-        
-        /**
-         * Determine if the first bignum container is greater than the second in
-         * terms of numerical value.
-         * This function is not designed to compare a bignum's descriptors.
-         * 
-         * @param const container_type&
-         * 
-         * @param const container_type&
-         * 
-         * @return TRUE if the first parameter is greater, in numerical value,
-         * than the second parameter;
-         * FALSE if otherwise.
-         */
-        static bool absValIsGreater(const container_type&, const container_type&);
-        
-        /**
-         * Determine if the first bignum container is greater than or equal to
-         * the second in terms of numerical value.
-         * This function is not designed to compare a bignum's descriptors.
-         * 
-         * @param const container_type&
-         * 
-         * @param const container_type&
-         * 
-         * @return TRUE if the first parameter is greater, in numerical value,
-         * than or equal to the second parameter;
-         * FALSE if otherwise.
-         */
-        static bool absValIsGreaterOrEqual(const container_type&, const container_type&);
-        
-        /**
-         * Determine if the first bignum container is less than the second in
-         * terms of numerical value.
-         * This function is not designed to compare a bignum's descriptors.
-         * 
-         * @param const container_type&
-         * 
-         * @param const container_type&
-         * 
-         * @return TRUE if the first parameter is less, in numerical value,
-         * than the second parameter;
-         * FALSE if otherwise.
-         */
-        static bool absValIsLess(const container_type&, const container_type&);
-        
-        /**
-         * Determine if the first bignum container is less than or equal to
-         * the second in terms of numerical value.
-         * This function is not designed to compare a bignum's descriptors.
-         * 
-         * @param const container_type&
-         * 
-         * @param const container_type&
-         * 
-         * @return TRUE if the first parameter is less, in numerical value,
-         * than or equal to the second parameter;
-         * FALSE if otherwise.
-         */
-        static bool absValIsLessOrEqual(const container_type&, const container_type&);
-        
-        /**
          * Determine if a number can be computed.
          * 
          * @param bn_desc_t
@@ -183,20 +110,20 @@ class bn_type final {
         /**
          * Constructor
          */
-        bn_type();
+        Bignum();
         
         /**
          * Constructor with a number.
          * The number input is NOT in base-10, but rather base-"single_t"
          */
-        bn_type(bn_desc_t, std::initializer_list<single_t>);
+        Bignum(bn_desc_t, std::initializer_list<single_t>);
         
         /**
          * Copy Constructor
          * 
          * @param A bignum that should be copied into this.
          */
-        bn_type(const bn_type&);
+        Bignum(const Bignum&);
         
         /**
          * Move Contructor
@@ -205,14 +132,14 @@ class bn_type final {
          * 
          * @param num
          */
-        bn_type(bn_type&&);
+        Bignum(Bignum&&);
         
         /**
          * Destructor
          * 
          * Frees all memory and dynamic resources used by *this.
          */
-        ~bn_type() = default;
+        ~Bignum() = default;
         
         /**
          * Get the raw data contained within a bignum.
@@ -381,7 +308,7 @@ class bn_type final {
          * @return TRUE if the input numberdata equals this number data,
          * FALSE if otherwise.
          */
-        bool operator==(const bn_type&) const;
+        bool operator==(const Bignum&) const;
         
         /**
          * Basic "not" comparison
@@ -392,7 +319,7 @@ class bn_type final {
          * @return FALSE if the input numberdata equals this number data,
          * TRUE if otherwise.
          */
-        bool operator!=(const bn_type&) const;
+        bool operator!=(const Bignum&) const;
         
         /**
          * Greater than operator
@@ -403,7 +330,7 @@ class bn_type final {
          * sign and numerical value.
          * FALSE if the input parameter is greater than or equal to *this.
          */
-        bool operator > (const bn_type&) const;
+        bool operator > (const Bignum&) const;
         
         /**
          * Greater than/equal to operator
@@ -414,7 +341,7 @@ class bn_type final {
          * terms of both sign and numerical value.
          * FALSE if the input parameter is greater than to *this.
          */
-        bool operator >= (const bn_type&) const;
+        bool operator >= (const Bignum&) const;
         
         /**
          * Less than operator
@@ -425,7 +352,7 @@ class bn_type final {
          * sign and numerical value.
          * FALSE if the input parameter is smaller than or equal to *this.
          */
-        bool operator < (const bn_type&) const;
+        bool operator < (const Bignum&) const;
         
         /**
          * Less than/equal to operator
@@ -436,7 +363,7 @@ class bn_type final {
          * sign and numerical value.
          * FALSE if the input parameter is smaller than *this.
          */
-        bool operator <= (const bn_type&) const;
+        bool operator <= (const Bignum&) const;
         
         /**
          * Copy assignment.
@@ -445,7 +372,7 @@ class bn_type final {
          * 
          * @return A reference to *this with the parameter value.
          */
-        bn_type& operator=(const bn_type&);
+        Bignum& operator=(const Bignum&);
         
         /**
          * Move assignment.
@@ -455,7 +382,7 @@ class bn_type final {
          * @return A reference to *this with the parameter value. The parameter
          * value is moved into this, preventing any copies in memory.
          */
-        bn_type& operator=(bn_type&&);
+        Bignum& operator=(Bignum&&);
         
         /**
          * Add.
@@ -464,7 +391,7 @@ class bn_type final {
          * 
          * @return A copy of *this, with the parameter value added.
          */
-        bn_type operator + (const bn_type&) const;
+        Bignum operator + (const Bignum&) const;
         
         /**
          * Subtract.
@@ -473,7 +400,7 @@ class bn_type final {
          * 
          * @return A copy of *this, with the parameter value subtracted.
          */
-        bn_type operator - (const bn_type&) const;
+        Bignum operator - (const Bignum&) const;
         
         /**
          * Multiply.
@@ -482,7 +409,7 @@ class bn_type final {
          * 
          * @return A copy of *this, with the parameter value multiplied.
          */
-        bn_type operator * (const bn_type&) const;
+        Bignum operator * (const Bignum&) const;
         
         /**
          * Add with assignment.
@@ -491,7 +418,7 @@ class bn_type final {
          * 
          * @return A reference to *this.
          */
-        bn_type& operator += (const bn_type&);
+        Bignum& operator += (const Bignum&);
         
         /**
          * Subtract with assignment.
@@ -500,7 +427,7 @@ class bn_type final {
          * 
          * @return A reference to *this.
          */
-        bn_type& operator -= (const bn_type&);
+        Bignum& operator -= (const Bignum&);
         
         /**
          * Multiplication with assignment.
@@ -509,7 +436,7 @@ class bn_type final {
          * 
          * @return A reference to *this.
          */
-        bn_type& operator *= (const bn_type&);
+        Bignum& operator *= (const Bignum&);
 };
 
 #include "bignum/impl/bn_type_impl.h"

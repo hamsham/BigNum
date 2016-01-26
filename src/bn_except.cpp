@@ -34,14 +34,14 @@ void bn_runtime_assert(bool condition, bn_error_t type, const char* const msg) {
 /*
  * NaN Exception
  */
-const char* bnNaN::what() const noexcept {
+const char* BNNaN::what() const noexcept {
     return "Bignum NaN state reached.";
 }
 
 /*
  * NaN Exception
  */
-const char* bnUnderflow::what() const noexcept {
+const char* BNUnderflow::what() const noexcept {
     return "Attempted to subtract a larger bignum number from a smaller one.";
 }
 

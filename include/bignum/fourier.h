@@ -27,10 +27,10 @@ using cmplx_value_t = typename cmplx_list_t<flt_t>::value_type;
 
 
 template <typename flt_t>
-void fft(cmplx_list_t<flt_t>& x);
+void fft_complex(cmplx_list_t<flt_t>& x);
 
 template <typename flt_t>
-void ifft(cmplx_list_t<flt_t>& x);
+void ifft_complex(cmplx_list_t<flt_t>& x);
 
 template <typename container_t, typename flt_t>
 cmplx_list_t<flt_t> create_fft_table(const container_t& a, const container_t& b);

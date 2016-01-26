@@ -29,14 +29,14 @@ using bn_default_container_t = std::vector<data_t, allocator>;
 // 
 // These are defined in the source file "bn_type.cpp"
 ///////////////////////////////////////////////////////////////////////////////
-BN_DECLARE_CLASS(bn_type, bignum_lowp, bn_limits_lowp, bn_default_container_t<bn_limits_lowp::base_single>);
-BN_DECLARE_CLASS(bn_type, bignum_medp, bn_limits_medp, bn_default_container_t<bn_limits_medp::base_single>);
-BN_DECLARE_CLASS(bn_type, bignum_highp, bn_limits_highp, bn_default_container_t<bn_limits_highp::base_single>);
+BN_DECLARE_CLASS(Bignum, bignum_lowp, bn_limits_lowp, bn_default_container_t<bn_limits_lowp::base_single>);
+BN_DECLARE_CLASS(Bignum, bignum_medp, bn_limits_medp, bn_default_container_t<bn_limits_medp::base_single>);
+BN_DECLARE_CLASS(Bignum, bignum_highp, bn_limits_highp, bn_default_container_t<bn_limits_highp::base_single>);
 
-BN_DECLARE_CLASS(bn_type, bignum_base2, bn_limits_base2, bn_default_container_t<bn_limits_base2::base_single>);
-BN_DECLARE_CLASS(bn_type, bignum_base8, bn_limits_base8, bn_default_container_t<bn_limits_base8::base_single>);
-BN_DECLARE_CLASS(bn_type, bignum_base10, bn_limits_base10, bn_default_container_t<bn_limits_base10::base_single>);
-BN_DECLARE_CLASS(bn_type, bignum_base16, bn_limits_base16, bn_default_container_t<bn_limits_base16::base_single>);
+BN_DECLARE_CLASS(Bignum, bignum_base2, bn_limits_base2, bn_default_container_t<bn_limits_base2::base_single>);
+BN_DECLARE_CLASS(Bignum, bignum_base8, bn_limits_base8, bn_default_container_t<bn_limits_base8::base_single>);
+BN_DECLARE_CLASS(Bignum, bignum_base10, bn_limits_base10, bn_default_container_t<bn_limits_base10::base_single>);
+BN_DECLARE_CLASS(Bignum, bignum_base16, bn_limits_base16, bn_default_container_t<bn_limits_base16::base_single>);
 
 /**
  * Default-precision bignum

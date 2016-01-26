@@ -18,13 +18,13 @@
  * Setup typedefs to make it easier to change test parameters
  */
 typedef unsigned int_base_type;
-typedef bn_int_type<int_base_type, 0> int_type;
+typedef BNIntType<int_base_type, 0> int_type;
 
-template class bn_int_type<unsigned char, 0>;
-template class bn_int_type<unsigned short, 0>;
-template class bn_int_type<unsigned int, 0>;
-template class bn_int_type<unsigned long, 0>;
-template class bn_int_type<unsigned long long, 0>;
+template class BNIntType<unsigned char, 0>;
+template class BNIntType<unsigned short, 0>;
+template class BNIntType<unsigned int, 0>;
+template class BNIntType<unsigned long, 0>;
+template class BNIntType<unsigned long long, 0>;
 
 /**
  * Generate a random integral value based on the current test type

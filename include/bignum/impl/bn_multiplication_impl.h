@@ -13,7 +13,7 @@
 // FFT-based multiplication
 ///////////////////////////////////////////////////////////////////////////////
 template <typename limits_t, typename container_t>
-container_t mulStrassen(const container_t& a, const container_t& b) {
+container_t mul_strassen(const container_t& a, const container_t& b) {
     // Default type is double. Use floats if they perform well enough.
     typedef double flt_t;
     typedef typename limits_t::base_double double_t;
@@ -24,7 +24,7 @@ container_t mulStrassen(const container_t& a, const container_t& b) {
     cmplx_list_t<flt_t> fftTable = std::move(create_fft_table<container_t, flt_t>(a, b));
     
     convolute_fft<flt_t>(fftTable);
-    ifft<flt_t>(fftTable);
+    ifft_complex<flt_t>(fftTable);
     
     const cmplx_list_t<flt_t>& inverses = fftTable;
     
@@ -66,7 +66,7 @@ container_t mulStrassen(const container_t& a, const container_t& b) {
 // Naive Multiplication
 ///////////////////////////////////////////////////////////////////////////////
 template <typename limits_t, typename container_t>
-container_t mulNaive(const container_t& a, const container_t& b) {
+container_t mul_naive(const container_t& a, const container_t& b) {
     typedef typename limits_t::base_double double_t;
     typedef typename container_t::size_type big_size_type;
     static constexpr double_t NUM_BASE = double_t{limits_t::BASE_SINGLE_MAX}+1;
