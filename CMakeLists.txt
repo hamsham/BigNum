@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0.2)
 
 project("BigNum" CXX)
+set(CMAKE_CXX_STANDARD 11)
+
 set(BN_OUTPUT_NAME "bignum")
 
 
@@ -9,35 +11,35 @@ set(BN_OUTPUT_NAME "bignum")
 # Compiler Options
 # -------------------------------------
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-
-    set(BN_COMPILER_WARNINGS "-Wall -Werror -Wextra -pedantic -pedantic-errors")
-    set(BN_COMMON_COMPILER_FLAGS "")
-    set(BN_C_COMPILER_FLAGS "-std=c99 ${BN_COMMON_COMPILER_FLAGS} ${BN_COMPILER_WARNINGS}")
-    set(BN_CXX_COMPILER_FLAGS "-std=c++11 ${BN_COMMON_COMPILER_FLAGS} ${BN_COMPILER_WARNINGS}")
+    add_definitions(-Wall)
+    add_definitions(-Werror)
+    add_definitions(-Wextra)
+    add_definitions(-pedantic)
+    add_definitions(-pedantic-errors)
 
     # Tested on Linux, all static libraries need to be compiled with the -fPIC
     # flag in order to be linked into shared libs. This is going to destroy all
     # benchmarks due to extra assembly instructions being compiled in.
     if(NOT WIN32 AND NOT BUILD_SHARED_LIBS)
-        set(BN_C_COMPILER_FLAGS "${BN_C_COMPILER_FLAGS} -fPIC")
-        set(BN_CXX_COMPILER_FLAGS "${BN_CXX_COMPILER_FLAGS} -fPIC")
+        add_definitions(-fPIC)
     endif()
-
+      
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-
-    set(BN_COMPILER_WARNINGS "/Wall /sdl /W3 /WX")
-    set(BN_COMMON_COMPILER_FLAGS "/Za /Zc:rvalueCast /Zc:strictStrings /Zc:inline")
-    set(BN_C_COMPILER_FLAGS "${BN_COMMON_COMPILER_FLAGS} ${BN_COMPILER_WARNINGS}")
-    set(BN_CXX_COMPILER_FLAGS "${BN_COMMON_COMPILER_FLAGS} ${BN_COMPILER_WARNINGS}")
-
+    add_definitions(/Zc:__cplusplus)
+    add_definitions(/Wall)
+    add_definitions(/sdl-)
+    add_definitions(/W3)
+    add_definitions(/WX)
+    add_definitions(/permissive-) # enable conformance mode
+    add_definitions(/Za)
+    add_definitions(/Zc:rvalueCast)
+    add_definitions(/Zc:strictStrings)
+    add_definitions(/Zc:inline)
+    
 else()
-
     message(FATAL_ERROR "Your compiler is currently unsupported: ${CMAKE_CXX_COMPILER_ID}")
 
 endif()
-
-#add_definitions(${BN_C_COMPILER_FLAGS})
-add_definitions(${BN_CXX_COMPILER_FLAGS})
 
 
 
@@ -52,6 +54,26 @@ include_directories("include")
 # Source Files
 # -------------------------------------
 set(BN_SOURCES
+    "include/bignum/bignum.h"
+    "include/bignum/bn_addition.h"
+    "include/bignum/bn_compare.h"
+    "include/bignum/bn_except.h"
+    "include/bignum/bn_int_type.h"
+    "include/bignum/bn_limits.h"
+    "include/bignum/bn_multiplication.h"
+    "include/bignum/bn_setup.h"
+    "include/bignum/bn_subtraction.h"
+    "include/bignum/bn_type.h"
+    "include/bignum/fourier.h"
+    "include/bignum/impl/bn_addition_impl.h"
+    "include/bignum/impl/bn_compare_impl.h"
+    "include/bignum/impl/bn_int_type_impl.h"
+    "include/bignum/impl/bn_limits_impl.h"
+    "include/bignum/impl/bn_multiplication_impl.h"
+    "include/bignum/impl/bn_subtraction_impl.h"
+    "include/bignum/impl/bn_type_impl.h"
+    "include/bignum/impl/fourier_impl.h"
+
     "src/bignum.cpp"
     "src/bn_except.cpp"
     "src/bn_int_type.cpp"
