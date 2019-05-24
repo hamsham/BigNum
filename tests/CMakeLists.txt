@@ -34,13 +34,13 @@ add_definitions(-DBN_TEST_FILE="${BN_TEST_FILE}")
 # Building and Linkins Targets
 # -------------------------------------
 function(bn_add_test testname srcfile)
-    add_executable("${testname}" "${srcfile}")
-    add_dependencies("${testname}" "${BN_TEST_DEPS}")
-    target_link_libraries("${testname}" "${BN_TEST_DEPS}")
-    add_test("${testname}" "${testname}")
+    add_executable(${testname} ${srcfile})
+    add_dependencies(${testname} ${BN_TEST_DEPS})
+    target_link_libraries(${testname} ${BN_TEST_DEPS})
+    add_test(${testname} ${testname})
 endfunction(bn_add_test)
 
 
-bn_add_test(bn_integer_test "integer_test.cpp")
-bn_add_test(bn_compress_test "compress_test.cpp")
-bn_add_test(bn_arithmetic_test "arithmetic_test.cpp")
+bn_add_test(bn_integer_test integer_test.cpp)
+bn_add_test(bn_compress_test compress_test.cpp)
+bn_add_test(bn_arithmetic_test arithmetic_test.cpp)

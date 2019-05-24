@@ -20,6 +20,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     # Not all versions of Clang are happy with explicit move semantics
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         add_definitions(-Wno-pessimizing-move)
+        add_definitions(-Wno-division-by-zero) # Clang thinks division by special enumerations is a div-by-zero
     endif()
 
     # Tested on Linux, all static libraries need to be compiled with the -fPIC

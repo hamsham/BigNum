@@ -13,6 +13,7 @@ void abs_val_div(
     typedef typename limits_t::base_double bn_double;
     
     // numerical limits
+    static constexpr bn_double SINGLE_BASE_LIMIT = bn_max_limit<bn_single>() + (bn_double)1;
     static constexpr bn_double SINGLE_BASE_MAX = bn_max_limit<bn_single>();
     static constexpr bn_double SINGLE_BASE_MIN = bn_min_limit<bn_single>();
     
@@ -31,7 +32,7 @@ void abs_val_div(
             bn_single temp = (container[curr] * (bn_single)2) + carry;
             container[curr] = temp;
             carry = (bn_single)(temp > (bn_single)SINGLE_BASE_MAX ? 1 : 0);
-            container[curr] = temp % (bn_single)(SINGLE_BASE_MAX+(bn_double)1);
+            container[curr] = temp % (bn_single)SINGLE_BASE_LIMIT;
             ++curr;
         }
 
