@@ -42,5 +42,7 @@ endfunction(bn_add_test)
 
 
 bn_add_test(bn_integer_test integer_test.cpp)
-bn_add_test(bn_compress_test compress_test.cpp)
 bn_add_test(bn_arithmetic_test arithmetic_test.cpp)
+
+bn_add_test(bn_compress_test compress_test.cpp)
+configure_file(test_file.cpp test_file.cpp COPYONLY)

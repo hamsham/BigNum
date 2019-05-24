@@ -30,87 +30,103 @@ enum class test_err_t : int {
     NO_FILE_ERR
 };
 
-///////////////////////////////////////////////////////////////////////////////
-// Get the number of bytes in a file
-///////////////////////////////////////////////////////////////////////////////
-std::ifstream::pos_type getNumBytes(std::ifstream& fin) {
-    if (fin.fail() || fin.bad()) {
-        std::cout << "File read error" << std::endl;
-        return 0;
-    }
-    
-    std::ifstream::pos_type currentPos = fin.tellg();
-    fin.seekg(0, std::ifstream::end);
-    std::ifstream::pos_type totalSize = fin.tellg();
-    fin.seekg(currentPos, std::ifstream::beg);
-    fin.clear();
-    return totalSize;
-}
+BN_DECLARE_CLASS(BNIntType, bn_base256_single, BN_UINT16, 256);
+BN_DECLARE_CLASS(BNIntType, bn_base256_double, BN_UINT32, 256);
+
+BN_DEFINE_CLASS(BNIntType, BN_UINT16, 256);
+BN_DEFINE_CLASS(BNIntType, BN_UINT32, 256);
+
+template <>
+constexpr bn_u64_t bn_min_limit<bn_base256_single>() {return 0;}
+template <>
+constexpr bn_u64_t bn_max_limit<bn_base256_single>() {return 255;}
+
+template <>
+constexpr bn_u64_t bn_min_limit<bn_base256_double>() {return 0;}
+template <>
+constexpr bn_u64_t bn_max_limit<bn_base256_double>() {return 511;}
+
+BN_DECLARE_STRUCT(BNLimitsType, bn_limits_base256, bn_base256_single, bn_base256_single);
+BN_DEFINE_STRUCT(BNLimitsType,                     bn_base256_single, bn_base256_single);
+
+BN_DECLARE_CLASS(Bignum, bignum_base256, bn_limits_base256, bn_default_container_t<bn_limits_base256::base_single>);
+BN_DEFINE_CLASS(Bignum,                  bn_limits_base256, bn_default_container_t<bn_limits_base256::base_single>);
 
 ///////////////////////////////////////////////////////////////////////////////
-// Get a bignum that can compress (subtract) another bignum in a reasonable
-// amount of time.
+// Read a file
 ///////////////////////////////////////////////////////////////////////////////
-bignum& setOptimalSubtractor(bignum::bn_double numSubtracteeDigis, bignum& subtractor) {
-    const bignum::bn_double optimalSize = numSubtracteeDigis-1;
-    subtractor.resize(optimalSize, bn_max_limit<bignum::bn_single>());
-    return subtractor;
-}
+test_err_t read_file(const std::string filename, std::string& outData)
+{
+    std::ifstream fin{filename, std::ifstream::binary | std::ifstream::in | std::ifstream::ate};
 
-///////////////////////////////////////////////////////////////////////////////
-// Get a bignum that can compress (subtract) another bignum in a reasonable
-// amount of time using the data from a file.
-///////////////////////////////////////////////////////////////////////////////
-const bignum getSubtractor(std::ifstream& fin) {
-    bignum ret = {BN_POS, {bn_max_limit<bignum::bn_single>()}};
-    bignum::bn_double fileSize = getNumBytes(fin);
-    
-    if (fileSize == 0) {
-        ret.pop_back();
-        return ret;
+    if (!fin.good()) {
+        return test_err_t::ERR_OPENING_FILE;
     }
-    setOptimalSubtractor(fileSize, ret);
-    return ret;
+    else {
+        const std::size_t size = fin.tellg();
+        fin.seekg(0, std::ios_base::beg);
+
+        outData.resize(size, 0);
+
+        fin.read(&outData[0], size);
+    }
+
+
+    fin.close();
+
+    return test_err_t::NO_FILE_ERR;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // compress the data within a file using bignums
 ///////////////////////////////////////////////////////////////////////////////
-test_err_t compress(const std::string& filename, bignum& outNum, bignum::bn_double& compressionSize) {
-    bignum compressor;
-    std::ifstream fin{filename, std::ifstream::binary | std::ifstream::in};
-    
-    if (!fin.good()) {
-        return test_err_t::ERR_OPENING_FILE;
-    }
-    else {
-        outNum = std::move(bignum{BN_POS, {0}});
-    }
-    
-    while (fin.good()) {
-        uint32_t c1 = (uint32_t)(fin.good() ? fin.get() : 0);
-        c1 <<= 0;
-        uint32_t c2 = (uint32_t)(fin.good() ? fin.get() : 0);
-        c2 <<= 8;
-        uint32_t c3 = (uint32_t)(fin.good() ? fin.get() : 0);
-        c3 <<= 16;
-        uint32_t c4 = (uint32_t)(fin.good() ? fin.get() : 0);
-        c4 <<= 24;
-        
-        uint32_t digit = c1 | c2 | c3 | c4;
-        outNum.push_back(digit);
-    }
-    
-    fin.close();
-    
+test_err_t compress(const std::string& filename, bignum_base256& outNum, std::size_t& inSize, uint16_t& numLastBits)
+{
     std::cout << "Compressing: " << filename << '.' << std::endl;
-    std::cout << "Original size: " << outNum.size() << std::endl;
-    
-    std::cout << outNum << '\n' << std::endl;
-    compressionSize = outNum.size();
-    outNum -= setOptimalSubtractor(compressionSize, compressor);
-    
+    std::cout << "Original size: " << filename.size() << std::endl;
+
+    inSize = filename.size();
+    bignum_base256 inNum = bignum_base256{BN_POS, {}};
+
+    for (typename std::string::const_iterator i = filename.cbegin(); i != filename.cend(); ++i)
+    {
+        const char c = *i;
+        inNum.push_back((uint16_t)c);
+    }
+    inNum.push_back('\0');
+
+    const bignum_base256 divisor{BN_POS, {2}};
+    uint16_t digit = 0;
+    std::size_t numBitsUsed = 0;
+
+    while (inNum.size() != 1 || inNum.numData[0] > bn_base256_single{1})
+    {
+        uint16_t remainder = (inNum.numData[0] % bn_base256_single{2}) ? 1 : 0;
+        digit = digit | (remainder << numBitsUsed);
+
+        if (++numBitsUsed == sizeof(uint16_t) * CHAR_BIT)
+        {
+            numBitsUsed = 0;
+            outNum.push_back(digit);
+            digit = 0;
+        }
+
+        inNum /= divisor;
+    }
+
+    // input number has a single digit left
+    {
+        uint16_t remainder = (inNum.numData[0] % bn_base256_single{2}) ? 1 : 0;
+        digit = digit | (remainder << numBitsUsed);
+        ++numBitsUsed;
+        outNum.push_back(digit);
+
+    }
+
+    numLastBits = numBitsUsed;
+
     std::cout << "Compressed size: " << outNum.size() << std::endl;
+    std::cout << "Compressed Num: " << inNum << std::endl;
     std::cout << outNum << '\n' << std::endl;
     
     return test_err_t::NO_FILE_ERR;
@@ -119,29 +135,44 @@ test_err_t compress(const std::string& filename, bignum& outNum, bignum::bn_doub
 ///////////////////////////////////////////////////////////////////////////////
 // decompress (add) a bignum so that it returns the original data from a file.
 ///////////////////////////////////////////////////////////////////////////////
-test_err_t decompress(const std::string& filename, bignum& inNum, bignum::bn_double compressionSize) {
-    (void)filename;
-    bignum compressor = {};
-    
+test_err_t decompress(const std::string& filename, const bignum_base256& inNum, std::size_t inSize, uint16_t numLastBits) {
     std::cout << "Decompressing: " << filename << ".\n";
-    std::cout << "Compressed Size: " << inNum.size() << std::endl;
-    
+    std::cout << "Compressed Size: " << inNum.size() << ' ' << numLastBits << std::endl;
     std::cout << inNum << '\n' << std::endl;
-    inNum += setOptimalSubtractor(compressionSize, compressor);
-    
-    std::cout << "Decompressed Size: " << inNum.size() << std::endl;
-    std::cout << inNum << '\n' << std::endl;
-    
-    for (typename bignum::container_type::size_type i = 0; i < inNum.size(); ++i) {
-        uint32_t digit = inNum[i];
-        std::cout
-            << (char)(digit >> 0)
-            << (char)(digit >> 8)
-            << (char)(digit >> 16)
-            << (char)(digit >> 24);
+
+    bignum_base256 outNum = bignum_base256{BN_POS, {0}};
+    const bignum_base256 divisor{BN_POS, {2}};
+    std::size_t iter = inNum.size();
+    std::size_t numBitsUsed = numLastBits;
+
+    while (iter > 0 && numBitsUsed > 0)
+    {
+        --numBitsUsed;
+        bignum_base256 digit{BN_POS, {((uint16_t)inNum.numData[iter-1] >> numBitsUsed) & 1}};
+
+        outNum = (outNum * divisor) + digit;
+
+        if (!numBitsUsed)
+        {
+            numBitsUsed = (sizeof(uint16_t) * CHAR_BIT);
+            --iter;
+        }
     }
-    
-    std::cout << '\n' << std::endl;
+
+    std::cout << "Decompressed Size: " << outNum.size() << std::endl;
+    std::cout << "Reference Size: " << inSize << std::endl;
+
+    for (bn_base256_single c : outNum.numData)
+    {
+        std::cout << (char)c;
+    }
+    std::cout << std::endl;
+
+    for (bn_base256_single c : outNum.numData)
+    {
+        std::cout << c;
+    }
+    std::cout << std::endl;
     
     return test_err_t::NO_FILE_ERR;
 }
@@ -166,6 +197,7 @@ std::vector<std::string> parseArgs(int argc, char** argv) {
 ///////////////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv) {
     std::vector<std::string> argList = std::move(parseArgs(argc, argv));
+    //argList.emplace_back(std::string{__FILE__});
     
     if (argList.empty()) {
         if (BN_TEST_FILE == nullptr) {
@@ -182,14 +214,38 @@ int main(int argc, char** argv) {
         std::cout << "\n\t" << arg;
     }
     std::cout << std::endl;
-    
-    for (const std::string& arg : argList) {
-        bignum num = {};
-        bignum::bn_double compressionSize = 0;
-        
-        compress(arg, num, compressionSize);
-        decompress(arg, num, compressionSize);
+
+
+    for (const std::string& inFile : argList) {
+        std::string fileData;
+
+        if (read_file(inFile, fileData) != test_err_t::NO_FILE_ERR)
+        {
+            std::cerr << "Unable to open the file " << inFile << " for reading." << std::endl;
+        }
+
+        bignum_base256 num = {BN_POS, {}};
+        num.numData.clear(); // insurance
+
+        std::size_t compression = 0;
+        uint16_t lastBits = 0;
+
+        compress(fileData, num, compression, lastBits);
+        decompress(inFile, num, compression, lastBits);
     }
+
+    /*
+    bignum_base256 num = {BN_POS, {0}};
+    num.numData.clear(); // insurance
+
+    std::size_t compression = 0;
+    uint16_t lastBits = 0;
+
+    std::string testString{"Hello World!"};
+
+    compress(testString, num, compression, lastBits);
+    decompress(testString, num, compression, lastBits);
+    */
     
     return 0;
 }
