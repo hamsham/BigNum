@@ -23,29 +23,29 @@ void abs_val_sub(
         }
     #endif
 
-    typedef typename limits_t::base_single single_t;
-    typedef typename limits_t::base_double double_t;
+    typedef typename limits_t::base_single bn_single;
+    typedef typename limits_t::base_double bn_double;
     
     // numerical iterators
     typename container_t::size_type outIter = 0;
     typename container_t::size_type inIter = 0;
 
-    constexpr double_t SINGLE_BASE_MAX = bn_max_limit<single_t>();
+    constexpr bn_double SINGLE_BASE_MAX = bn_max_limit<bn_single>();
     
     // borrow/carry counter
-    double_t numBorrowed = 0;
+    bn_double numBorrowed = 0;
     
     while (true) {
         // get the single digits that are to be added
-        const double_t inDigit = (inIter < smallerNum.size()) ? smallerNum[inIter] : double_t{0};
-        const double_t outDigit = (largerNum[outIter]-numBorrowed)-inDigit;
+        const bn_double inDigit = (inIter < smallerNum.size()) ? smallerNum[inIter] : bn_double{0};
+        const bn_double outDigit = (largerNum[outIter]-numBorrowed)-inDigit;
         
         if (SINGLE_BASE_MAX < outDigit) {
-            largerNum[outIter] = (single_t)(outDigit+SINGLE_BASE_MAX+double_t{1});
+            largerNum[outIter] = (bn_single)(outDigit+SINGLE_BASE_MAX+bn_double{1});
             numBorrowed = 1;
         }
         else {
-            largerNum[outIter] = (single_t)outDigit;
+            largerNum[outIter] = (bn_single)outDigit;
             numBorrowed = 0;
         }
         

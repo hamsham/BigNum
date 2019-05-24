@@ -51,9 +51,9 @@ std::ifstream::pos_type getNumBytes(std::ifstream& fin) {
 // Get a bignum that can compress (subtract) another bignum in a reasonable
 // amount of time.
 ///////////////////////////////////////////////////////////////////////////////
-bignum& setOptimalSubtractor(bignum::double_t numSubtracteeDigis, bignum& subtractor) {
-    const bignum::double_t optimalSize = numSubtracteeDigis-1;
-    subtractor.resize(optimalSize, bn_max_limit<bignum::single_t>());
+bignum& setOptimalSubtractor(bignum::bn_double numSubtracteeDigis, bignum& subtractor) {
+    const bignum::bn_double optimalSize = numSubtracteeDigis-1;
+    subtractor.resize(optimalSize, bn_max_limit<bignum::bn_single>());
     return subtractor;
 }
 
@@ -62,8 +62,8 @@ bignum& setOptimalSubtractor(bignum::double_t numSubtracteeDigis, bignum& subtra
 // amount of time using the data from a file.
 ///////////////////////////////////////////////////////////////////////////////
 const bignum getSubtractor(std::ifstream& fin) {
-    bignum ret = {BN_POS, {bn_max_limit<bignum::single_t>()}};
-    bignum::double_t fileSize = getNumBytes(fin);
+    bignum ret = {BN_POS, {bn_max_limit<bignum::bn_single>()}};
+    bignum::bn_double fileSize = getNumBytes(fin);
     
     if (fileSize == 0) {
         ret.pop_back();
@@ -76,7 +76,7 @@ const bignum getSubtractor(std::ifstream& fin) {
 ///////////////////////////////////////////////////////////////////////////////
 // compress the data within a file using bignums
 ///////////////////////////////////////////////////////////////////////////////
-test_err_t compress(const std::string& filename, bignum& outNum, bignum::double_t& compressionSize) {
+test_err_t compress(const std::string& filename, bignum& outNum, bignum::bn_double& compressionSize) {
     bignum compressor;
     std::ifstream fin{filename, std::ifstream::binary | std::ifstream::in};
     
@@ -119,7 +119,7 @@ test_err_t compress(const std::string& filename, bignum& outNum, bignum::double_
 ///////////////////////////////////////////////////////////////////////////////
 // decompress (add) a bignum so that it returns the original data from a file.
 ///////////////////////////////////////////////////////////////////////////////
-test_err_t decompress(const std::string& filename, bignum& inNum, bignum::double_t compressionSize) {
+test_err_t decompress(const std::string& filename, bignum& inNum, bignum::bn_double compressionSize) {
     (void)filename;
     bignum compressor = {};
     
@@ -185,7 +185,7 @@ int main(int argc, char** argv) {
     
     for (const std::string& arg : argList) {
         bignum num = {};
-        bignum::double_t compressionSize = 0;
+        bignum::bn_double compressionSize = 0;
         
         compress(arg, num, compressionSize);
         decompress(arg, num, compressionSize);

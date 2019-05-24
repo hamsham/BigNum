@@ -73,12 +73,12 @@ class Bignum final {
         /**
          * Exposed single-precision type
          */
-        typedef typename limits_t::base_single single_t;
+        typedef typename limits_t::base_single bn_single;
         
         /**
          * Exposed double-precision type
          */
-        typedef typename limits_t::base_double double_t;
+        typedef typename limits_t::base_double bn_double;
         
         /**
          * Exposed single-precision type
@@ -99,7 +99,7 @@ class Bignum final {
     /*
      * Private member information
      */
-    private:
+    public:
         bn_desc_t descriptor = BN_POS;
         container_type numData = {};
     
@@ -114,9 +114,9 @@ class Bignum final {
         
         /**
          * Constructor with a number.
-         * The number input is NOT in base-10, but rather base-"single_t"
+         * The number input is NOT in base-10, but rather base-"bn_single"
          */
-        Bignum(bn_desc_t, std::initializer_list<single_t>);
+        Bignum(bn_desc_t, std::initializer_list<bn_single>);
         
         /**
          * Copy Constructor
@@ -205,7 +205,7 @@ class Bignum final {
          * Reserve a certain amount of memory for manipulating a certain amount
          * of digits
          */
-        void resize(typename container_type::size_type numDigits, single_t digits = limits_t::SINGLE_BASE_MIN);
+        void resize(typename container_type::size_type numDigits, bn_single digits = limits_t::SINGLE_BASE_MIN);
         
         /**
          * Get the size (number of digits) that are currently used.
@@ -218,9 +218,9 @@ class Bignum final {
          * Push a single digit to the position of highest magnitude within this
          * object's internal container.
          * 
-         * @param single_t
+         * @param bn_single
          */
-        void push_front(single_t digit);
+        void push_front(bn_single digit);
         
         /**
          * Remove a single digit from the position of highest magnitude within
@@ -232,9 +232,9 @@ class Bignum final {
          * Push a single digit to the position of lowest magnitude within this
          * object's internal container.
          * 
-         * @param single_t
+         * @param bn_single
          */
-        void push_back(single_t digit);
+        void push_back(bn_single digit);
         
         
         /**
@@ -249,9 +249,9 @@ class Bignum final {
          * Keep in mind that this object's numbers increase in magnitude from
          * the lowest index to the highest.
          * 
-         * @param single_t
+         * @param bn_single
          */
-        void push(single_t digit, typename container_type::size_type pos);
+        void push(bn_single digit, typename container_type::size_type pos);
         
         /**
          * Remove a single digit from an arbitrary position within this
@@ -260,7 +260,7 @@ class Bignum final {
          * Keep in mind that this object's numbers increase in magnitude from
          * the lowest index to the highest.
          * 
-         * @param single_t
+         * @param bn_single
          */
         void pop(typename container_type::size_type pos);
         
@@ -280,9 +280,9 @@ class Bignum final {
          * An unsigned integral type.
          * 
          * @return
-         * A value of type "single_t."
+         * A value of type "bn_single."
          */
-        single_t& operator[](typename container_type::size_type iter);
+        bn_single& operator[](typename container_type::size_type iter);
         
         
         /**
@@ -295,9 +295,9 @@ class Bignum final {
          * An unsigned integral type.
          * 
          * @return
-         * A value of type "single_t."
+         * A value of type "bn_single."
          */
-        single_t operator[](typename container_type::size_type iter) const;
+        bn_single operator[](typename container_type::size_type iter) const;
         
         /**
          * Basic comparison
@@ -410,6 +410,15 @@ class Bignum final {
          * @return A copy of *this, with the parameter value multiplied.
          */
         Bignum operator * (const Bignum&) const;
+
+        /**
+         * Divide.
+         *
+         * @param A bignum that will be used to divide *this.
+         *
+         * @return A copy of *this, divided by the input operand.
+         */
+        Bignum operator / (const Bignum&) const;
         
         /**
          * Add with assignment.
@@ -428,15 +437,24 @@ class Bignum final {
          * @return A reference to *this.
          */
         Bignum& operator -= (const Bignum&);
-        
+
         /**
          * Multiplication with assignment.
-         * 
+         *
          * @param A bignum that will be multiplied to *this.
-         * 
+         *
          * @return A reference to *this.
          */
         Bignum& operator *= (const Bignum&);
+        
+        /**
+         * Division with assignment.
+         * 
+         * @param A bignum that will divide *this.
+         * 
+         * @return A reference to *this.
+         */
+        Bignum& operator /= (const Bignum&);
 };
 
 #include "bignum/impl/bn_type_impl.h"

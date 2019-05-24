@@ -9,6 +9,7 @@
 #include "bignum/bn_addition.h"
 #include "bignum/bn_subtraction.h"
 #include "bignum/bn_multiplication.h"
+#include "bignum/bn_division.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Outputting to an ostream
@@ -56,52 +57,39 @@ Bignum<limits_t, container_t>::Bignum() {
 template <class limits_t, class container_t>
 Bignum<limits_t, container_t>::Bignum(
     bn_desc_t desc,
-    std::initializer_list<single_t> numList
+    std::initializer_list<bn_single> numList
 ) :
     descriptor{desc},
     numData{}
 {
-    typedef std::initializer_list<single_t> initializer_list;
-
     if (!numList.size()) {
-       return; 
+       return;
     }
-    
-    bool emptyDigit = true;
-    unsigned numInvalidItems = 0;
-    typename initializer_list::const_iterator iter;
-    typename container_type::size_type outIndex = numData.size();
-    
-    for (iter = numList.begin(); iter != numList.end(); ++iter) {
-        const typename initializer_list::value_type digit = *iter;
-        
-        // Check the input initializer list for zero-values. Leading
-        // zero-values cannot be added to the internal container (although)
-        // it's not prevented in the push_front methods).
-        if (digit != single_t{limits_t::SINGLE_BASE_MIN} && emptyDigit) {
-            ++numInvalidItems;
-            emptyDigit = false;
+
+    typename container_t::size_type leadingZeroes = 0;
+
+    // count all of the digits, minus starting "zeroes"
+    for (const auto val : numList) {
+        if (val != (bn_single)limits_t::SINGLE_BASE_MIN)
+        {
+            break;
         }
-        else {
+
+        ++leadingZeroes;
+    }
+
+    numData.resize(numList.size() - leadingZeroes);
+    typename container_t::size_type outIter = numData.size();
+
+    for (const auto val : numList)
+    {
+        if (leadingZeroes)
+        {
+            --leadingZeroes;
             continue;
         }
-        
-        // check to see if the internal container has been initialized.
-        if (!emptyDigit && numData.empty()) {
-            numData.resize(numList.size() - numInvalidItems);
-            
-            // stop more processing in the event that only zero-values had been
-            // found in the input initializer.
-            if (numData.empty()) {
-                return;
-            }
-            else {
-                outIndex = numData.size();
-            }
-        }
-        
-        // insert a digit!
-        numData[--outIndex] = digit;
+
+        numData[--outIter] = val;
     }
 }
 
@@ -153,9 +141,12 @@ void Bignum<limits_t, container_t>::setDescriptor(bn_desc_t desc) {
         case bn_desc_t::BN_POS_INF:
         case bn_desc_t::BN_NEG_INF:
             numData.clear();
+            break;
         default:
-            descriptor = desc;
+            break;
     }
+
+    descriptor = desc;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -195,7 +186,7 @@ inline bool Bignum<limits_t, container_t>::isNan() const {
 ///////////////////////////////////////////////////////////////////////////////
 template <class limits_t, class container_t>
 inline void Bignum<limits_t, container_t>::resize(
-    typename Bignum::container_type::size_type numDigits, single_t digits
+    typename Bignum::container_type::size_type numDigits, bn_single digits
 ) {
     numData.resize(numDigits, digits);
 }
@@ -213,7 +204,7 @@ Bignum<limits_t, container_t>::size() const {
 // push a number to the highest-order
 ///////////////////////////////////////////////////////////////////////////////
 template <class limits_t, class container_t>
-inline void Bignum<limits_t, container_t>::push_front(single_t digit) {
+inline void Bignum<limits_t, container_t>::push_front(bn_single digit) {
     numData.insert(numData.begin(), digit);
 }
 
@@ -229,7 +220,7 @@ inline void Bignum<limits_t, container_t>::pop_front() {
 // push a number into the lowest magnitude.
 ///////////////////////////////////////////////////////////////////////////////
 template <class limits_t, class container_t>
-inline void Bignum<limits_t, container_t>::push_back(single_t digit) {
+inline void Bignum<limits_t, container_t>::push_back(bn_single digit) {
     numData.push_back(digit);
 }
 
@@ -246,7 +237,7 @@ inline void Bignum<limits_t, container_t>::pop_back() {
 ///////////////////////////////////////////////////////////////////////////////
 template <class limits_t, class container_t>
 inline void Bignum<limits_t, container_t>::push(
-    single_t digit, typename Bignum::container_type::size_type pos
+    bn_single digit, typename Bignum::container_type::size_type pos
 ) {
     numData.insert(numData.begin()+pos, digit);
 }
@@ -434,13 +425,24 @@ Bignum<limits_t, container_t>::operator - (const Bignum& num) const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Subtract.
+// Multiply.
 ///////////////////////////////////////////////////////////////////////////////
 template <class limits_t, class container_t>
 inline Bignum<limits_t, container_t>
 Bignum<limits_t, container_t>::operator * (const Bignum& num) const {
     Bignum ret = *this;
     ret *= num;
+    return ret;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Divide.
+///////////////////////////////////////////////////////////////////////////////
+template <class limits_t, class container_t>
+inline Bignum<limits_t, container_t>
+Bignum<limits_t, container_t>::operator / (const Bignum& num) const {
+    Bignum ret = *this;
+    ret /= num;
     return ret;
 }
 
@@ -545,11 +547,15 @@ Bignum<limits_t, container_t>::operator -=(const Bignum& num) {
         }
         // subtract a negative from a positive
         else if (this->descriptor == BN_POS && num.descriptor == BN_NEG) {
-            abs_val_add<limits_t, container_t>(numData, num.numData);
+            container_t temp = abs_val_is_gt(numData, num.numData) ? numData : num.numData;
+            abs_val_sub<limits_t, container_t>(temp, num.numData);
+            numData = std::move(temp);
         }
         // subtract a positive from a negative
         else if (this->descriptor == BN_NEG && num.descriptor == BN_POS) {
-            abs_val_add<limits_t, container_t>(numData, num.numData);
+            container_t temp = abs_val_is_gt(numData, num.numData) ? numData : num.numData;
+            abs_val_sub<limits_t, container_t>(temp, num.numData);
+            numData = std::move(temp);
         }
         // subtract a negative from a negative
         else {
@@ -579,21 +585,21 @@ Bignum<limits_t, container_t>::operator -=(const Bignum& num) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Subtraction with assignment
+// Multiplication with assignment
 ///////////////////////////////////////////////////////////////////////////////
 template <class limits_t, class container_t>
 Bignum<limits_t, container_t>&
 Bignum<limits_t, container_t>::operator *=(const Bignum& num) {
-    
+
     // Make sure no unneeded calculations are performed
     if (!isComputable(descriptor)) {
         numData.clear();
         descriptor = num.descriptor;
         return *this;
     }
-    
+
     Bignum ret;
-    
+
     // subtract a negative from a positive
     if (this->descriptor == BN_POS && num.descriptor == BN_NEG) {
         ret.descriptor = BN_NEG;
@@ -607,11 +613,81 @@ Bignum<limits_t, container_t>::operator *=(const Bignum& num) {
     else {
         ret.descriptor = BN_POS;
     }
-    
+
     // std::deque throws exceptions when a memory error occurs
     try {
         ret.numData = std::move(mul_strassen<limits_t, container_t>(numData, num.numData));
         *this = std::move(ret);
+    }
+    catch(const std::exception& e) {
+        // Mark the number as positive infinite as this was likely the cause of an allocation failure.
+        descriptor = (num.descriptor == BN_POS) ? BN_POS_INF : BN_NEG_INF;
+
+        numData.clear();
+
+        throw e;
+    }
+
+    return *this;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Division with assignment
+///////////////////////////////////////////////////////////////////////////////
+template <class limits_t, class container_t>
+Bignum<limits_t, container_t>&
+Bignum<limits_t, container_t>::operator /=(const Bignum& num) {
+
+    // Make sure no unneeded calculations are performed
+    if (!isComputable(descriptor)) {
+        numData.clear();
+        descriptor = num.descriptor;
+        return *this;
+    }
+
+    static constexpr bn_double SINGLE_BASE_MIN = bn_min_limit<bn_single>();
+    
+    // subtract a negative from a positive
+    if (this->descriptor == BN_POS && num.descriptor == BN_NEG) {
+        descriptor = BN_NEG;
+    }
+    else if (this->descriptor == BN_NEG && num.descriptor == BN_NEG) {
+        descriptor = BN_POS;
+    }
+    else if (this->descriptor == BN_NEG && num.descriptor == BN_POS) {
+        descriptor = BN_NEG;
+    }
+    else {
+        descriptor = BN_POS;
+    }
+
+    if (num.numData.size() == 1 && num.numData[0] == SINGLE_BASE_MIN)
+    {
+        numData.clear();
+        descriptor = descriptor == BN_NEG ? BN_NEG_INF : BN_POS_INF;
+        return *this;
+    }
+
+    if (num.numData.size() == 1 && num.numData[0] == (bn_single)1)
+    {
+        return *this;
+    }
+
+    if (numData.empty() || (numData.size() == 1 && numData[0] == SINGLE_BASE_MIN))
+    {
+        return *this;
+    }
+
+    // std::deque throws exceptions when a memory error occurs
+    try {
+        if (abs_val_is_gt(numData, num.numData))
+        {
+            abs_val_div<limits_t, container_t>(numData, num.numData);
+        }
+        else
+        {
+            numData = {bn_single{0}};
+        }
     }
     catch(const std::exception& e) {
         // Mark the number as positive infinite as this was likely the cause of an allocation failure.
@@ -621,7 +697,7 @@ Bignum<limits_t, container_t>::operator *=(const Bignum& num) {
         
         throw e;
     }
-    
+
     return *this;
 }
 

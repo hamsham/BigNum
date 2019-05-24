@@ -16,9 +16,9 @@ template <typename limits_t, typename container_t>
 container_t mul_strassen(const container_t& a, const container_t& b) {
     // Default type is double. Use floats if they perform well enough.
     typedef double flt_t;
-    typedef typename limits_t::base_double double_t;
+    typedef typename limits_t::base_double bn_double;
     typedef typename container_t::size_type big_size_type;
-    static constexpr double_t NUM_BASE = double_t{limits_t::SINGLE_BASE_MAX+1};
+    static constexpr bn_double NUM_BASE = bn_double{limits_t::SINGLE_BASE_MAX+1};
     
 	// building a complex signal with the information of both signals.
     cmplx_list_t<flt_t> fftTable = std::move(create_fft_table<container_t, flt_t>(a, b));
@@ -36,7 +36,7 @@ container_t mul_strassen(const container_t& a, const container_t& b) {
         const flt_t x = inverses[i].real();
         
         // round to an integer
-        const double_t ci = (double_t)(c + std::floor(x + 0.5));
+        const bn_double ci = (bn_double)(c + std::floor(x + 0.5));
         
         ret.push_back(ci % NUM_BASE);
 
@@ -67,9 +67,9 @@ container_t mul_strassen(const container_t& a, const container_t& b) {
 ///////////////////////////////////////////////////////////////////////////////
 template <typename limits_t, typename container_t>
 container_t mul_naive(const container_t& a, const container_t& b) {
-    typedef typename limits_t::base_double double_t;
+    typedef typename limits_t::base_double bn_double;
     typedef typename container_t::size_type big_size_type;
-    static constexpr double_t NUM_BASE = double_t{limits_t::BASE_SINGLE_MAX}+1;
+    static constexpr bn_double NUM_BASE = (bn_double)limits_t::SINGLE_BASE_MAX+(bn_double)1;
     
     container_t ret{};
     

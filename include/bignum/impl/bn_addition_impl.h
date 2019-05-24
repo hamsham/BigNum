@@ -9,32 +9,32 @@ void abs_val_add(
     container_t& outNum,
     const container_t& inNum
 ) {
-    typedef typename limits_t::base_single single_t;
-    typedef typename limits_t::base_double double_t;
+    typedef typename limits_t::base_single bn_single;
+    typedef typename limits_t::base_double bn_double;
     
     // numerical iterators
     typename container_t::size_type outIter = 0;
     typename container_t::size_type inIter = 0;
     
-    static constexpr double_t SINGLE_BASE_MAX = bn_max_limit<single_t>();
+    static constexpr bn_double SINGLE_BASE_MAX = bn_max_limit<bn_single>();
     
     // arithmetic remainder
-    single_t remainder = 0;
+    bn_single remainder = 0;
     
     while (true) {
         // add a number to this object's container if necessary
         if (outIter == outNum.size()) {
             outNum.push_back(0);
         }
-        
+
         // get the single digits that are to be added
-        const double_t inDigit = (inIter < inNum.size()) ? inNum[inIter] : double_t{0};
-        const double_t outDigit = outNum[outIter] + inDigit + remainder;
-        
+        const bn_double inDigit = (inIter < inNum.size()) ? inNum[inIter] : bn_double{0};
+        const bn_double outDigit = outNum[outIter] + inDigit + remainder;
+
         // allow integer overflow to handle the resulting value.
         if (SINGLE_BASE_MAX < outDigit) {
-            const single_t overflow = SINGLE_BASE_MAX-double_t{1};
-            outNum[outIter] = outDigit-overflow;
+            const bn_single overflow = (bn_single)(outDigit % (SINGLE_BASE_MAX+bn_double{1}));
+            outNum[outIter] = overflow;
             remainder = 1;
         }
         else {
@@ -47,7 +47,7 @@ void abs_val_add(
         ++inIter;
         
         // determine when to stop counting
-        if (outIter == outNum.size() && inIter >= inNum.size() && 0 == remainder) {
+        if (outIter == outNum.size() && inIter >= inNum.size() && !remainder) {
             break;
         }
     }

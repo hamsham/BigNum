@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.0.2)
 
-project("BigNum" CXX)
+project(BigNum CXX)
 set(CMAKE_CXX_STANDARD 11)
 
-set(BN_OUTPUT_NAME "bignum")
+set(BN_OUTPUT_NAME bignum)
 
 
 
@@ -16,6 +16,11 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_definitions(-Wextra)
     add_definitions(-pedantic)
     add_definitions(-pedantic-errors)
+
+    # Not all versions of Clang are happy with explicit move semantics
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        add_definitions(-Wno-pessimizing-move)
+    endif()
 
     # Tested on Linux, all static libraries need to be compiled with the -fPIC
     # flag in order to be linked into shared libs. This is going to destroy all
@@ -46,7 +51,7 @@ endif()
 # -------------------------------------
 # Header Files & Search Paths
 # -------------------------------------
-include_directories("include")
+include_directories(include)
 
 
 
@@ -54,32 +59,34 @@ include_directories("include")
 # Source Files
 # -------------------------------------
 set(BN_SOURCES
-    "include/bignum/bignum.h"
-    "include/bignum/bn_addition.h"
-    "include/bignum/bn_compare.h"
-    "include/bignum/bn_except.h"
-    "include/bignum/bn_int_type.h"
-    "include/bignum/bn_limits.h"
-    "include/bignum/bn_multiplication.h"
-    "include/bignum/bn_setup.h"
-    "include/bignum/bn_subtraction.h"
-    "include/bignum/bn_type.h"
-    "include/bignum/fourier.h"
-    "include/bignum/impl/bn_addition_impl.h"
-    "include/bignum/impl/bn_compare_impl.h"
-    "include/bignum/impl/bn_int_type_impl.h"
-    "include/bignum/impl/bn_limits_impl.h"
-    "include/bignum/impl/bn_multiplication_impl.h"
-    "include/bignum/impl/bn_subtraction_impl.h"
-    "include/bignum/impl/bn_type_impl.h"
-    "include/bignum/impl/fourier_impl.h"
+    include/bignum/bignum.h
+    include/bignum/bn_addition.h
+    include/bignum/bn_compare.h
+    include/bignum/bn_division.h
+    include/bignum/bn_except.h
+    include/bignum/bn_int_type.h
+    include/bignum/bn_limits.h
+    include/bignum/bn_multiplication.h
+    include/bignum/bn_setup.h
+    include/bignum/bn_subtraction.h
+    include/bignum/bn_type.h
+    include/bignum/fourier.h
+    include/bignum/impl/bn_addition_impl.h
+    include/bignum/impl/bn_compare_impl.h
+    include/bignum/impl/bn_division_impl.h
+    include/bignum/impl/bn_int_type_impl.h
+    include/bignum/impl/bn_limits_impl.h
+    include/bignum/impl/bn_multiplication_impl.h
+    include/bignum/impl/bn_subtraction_impl.h
+    include/bignum/impl/bn_type_impl.h
+    include/bignum/impl/fourier_impl.h
 
-    "src/bignum.cpp"
-    "src/bn_except.cpp"
-    "src/bn_int_type.cpp"
-    "src/bn_limits.cpp"
-    "src/bn_setup.cpp"
-    "src/bn_type.cpp"
+    src/bignum.cpp
+    src/bn_except.cpp
+    src/bn_int_type.cpp
+    src/bn_limits.cpp
+    src/bn_setup.cpp
+    src/bn_type.cpp
 )
 
 
@@ -87,9 +94,9 @@ set(BN_SOURCES
 # -------------------------------------
 # Library Setup
 # -------------------------------------
-add_library("${BN_OUTPUT_NAME}" "${BN_SOURCES}")
-install(DIRECTORY "include/bignum" DESTINATION "include/bignum")
-install(TARGETS "${BN_OUTPUT_NAME}"
+add_library(${BN_OUTPUT_NAME} ${BN_SOURCES})
+install(DIRECTORY include/bignum DESTINATION include/bignum)
+install(TARGETS ${BN_OUTPUT_NAME}
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION bin
 )
@@ -99,9 +106,9 @@ install(TARGETS "${BN_OUTPUT_NAME}"
 # -------------------------------------
 # Tests
 # -------------------------------------
-set(BN_BUILD_TESTS TRUE CACHE BOOL "Build tests for the BigNum library.")
+option(BN_BUILD_TESTS "Build tests for the BigNum library." ON)
 
 if(BN_BUILD_TESTS)
     enable_testing()
-    add_subdirectory("tests")
+    add_subdirectory(tests)
 endif()
