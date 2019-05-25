@@ -5,6 +5,7 @@
  * Created on Jun 30, 2014, 10:44:41 AM
  */
 
+#include <climits> // CHAR_BIT
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -147,7 +148,7 @@ test_err_t decompress(const std::string& filename, const bignum_base256& inNum, 
     while (iter > 0 && numBitsUsed > 0)
     {
         --numBitsUsed;
-        bignum_base256 digit{BN_POS, {((uint16_t)inNum.numData[iter-1] >> numBitsUsed) & 1}};
+        bignum_base256 digit{BN_POS, {(uint16_t)(((int)inNum.numData[iter-1] >> numBitsUsed) & 1)}};
 
         outNum = (outNum * divisor) + digit;
 
@@ -191,7 +192,7 @@ std::vector<std::string> parseArgs(int argc, char** argv) {
 // Main
 ///////////////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv) {
-    #if 0
+    #if 1
     std::vector<std::string> argList = std::move(parseArgs(argc, argv));
     //argList.emplace_back(std::string{__FILE__});
     
