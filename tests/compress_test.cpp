@@ -126,8 +126,7 @@ test_err_t compress(const std::string& filename, bignum_base256& outNum, std::si
     numLastBits = numBitsUsed;
 
     std::cout << "Compressed size: " << outNum.size() << std::endl;
-    std::cout << "Compressed Num: " << inNum << std::endl;
-    std::cout << outNum << '\n' << std::endl;
+    std::cout << "Compressed Num: " << outNum << '\n' << std::endl;
     
     return test_err_t::NO_FILE_ERR;
 }
@@ -168,11 +167,7 @@ test_err_t decompress(const std::string& filename, const bignum_base256& inNum, 
     }
     std::cout << std::endl;
 
-    for (bn_base256_single c : outNum.numData)
-    {
-        std::cout << c;
-    }
-    std::cout << std::endl;
+    std::cout << outNum << std::endl;
     
     return test_err_t::NO_FILE_ERR;
 }
@@ -196,6 +191,7 @@ std::vector<std::string> parseArgs(int argc, char** argv) {
 // Main
 ///////////////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv) {
+    #if 0
     std::vector<std::string> argList = std::move(parseArgs(argc, argv));
     //argList.emplace_back(std::string{__FILE__});
     
@@ -234,7 +230,9 @@ int main(int argc, char** argv) {
         decompress(inFile, num, compression, lastBits);
     }
 
-    /*
+    #else
+    (void)argc;
+    (void)argv;
     bignum_base256 num = {BN_POS, {0}};
     num.numData.clear(); // insurance
 
@@ -245,7 +243,8 @@ int main(int argc, char** argv) {
 
     compress(testString, num, compression, lastBits);
     decompress(testString, num, compression, lastBits);
-    */
+
+    #endif
     
     return 0;
 }

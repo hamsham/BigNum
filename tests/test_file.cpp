@@ -5,6 +5,11 @@
 
 #include <iostream>
 
+int foo()
+{
+    std::cout << "Bar" << std::endl;
+}
+
 int main()
 {
     std::cout << "Hello World!" << std::endl;
